@@ -1,0 +1,6 @@
+@ShopeeAPI_HostAddress = http://localhost:5129
+
+GET {{ShopeeAPI_HostAddress}}/WeatherForecast
+Accept: application/json
+
+###
