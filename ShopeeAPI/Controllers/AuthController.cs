@@ -23,5 +23,16 @@ namespace Shopee.Api.Controllers
         {
             return Ok(await _mediator.Send(command));
         }
+        [HttpGet("RefreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            return Ok();
+        }
+        //[HttpPost("Signin")]
+        //[ProducesDefaultResponseType(typeof(int))]
+        //public async Task<IActionResult> Signin([FromBody] SigninCommand command)
+        //{
+        //    return Ok(await _mediator.Send(command));
+        //}
     }
 }

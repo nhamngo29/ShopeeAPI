@@ -7,14 +7,14 @@ using MediatR;
 
 namespace Shopee.Application.Commands.Auth
 {
-    public class AuthCommand : IRequest<AuthResponseDTO>
+    public class AuthCommand : IRequest<ApiReponse<AuthResponseDTO>>
     {
         public string UserName { get; set; }
         public string Password { get; set; }
     }
 
 
-    public class AuthCommandHandler : IRequestHandler<AuthCommand, AuthResponseDTO>
+    public class AuthCommandHandler : IRequestHandler<AuthCommand, ApiReponse<AuthResponseDTO>>
     {
         private readonly ITokenService _tokenGenerator;
         private readonly IIdentityService _identityService;
@@ -25,26 +25,39 @@ namespace Shopee.Application.Commands.Auth
             _tokenGenerator = tokenGenerator;
         }
 
-        public async Task<AuthResponseDTO> Handle(AuthCommand request, CancellationToken cancellationToken)
+        public async Task<ApiReponse<AuthResponseDTO>> Handle(AuthCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.SigninUserAsync(request.UserName, request.Password);
 
             if (!result)
             {
-                throw new BadRequestException("Invalid username or password");
+                return new ApiReponse<AuthResponseDTO>()
+                {
+                    Message = "Đăng nhập không thành công",
+                    StatusCode = 400,
+                    IsSuccess = false,
+                };
             }
 
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
             (string token, DateTime expiration) = _tokenGenerator.GenerateJWTToken((userId, userName, roles));
             string refreshToken = _tokenGenerator.GenerateRefreshToken();
-            return new AuthResponseDTO()
+            return new ApiReponse<AuthResponseDTO>()
             {
-                UserId = userId,
-                Name = userName,
-                Token = token,
-                Expiration = expiration,
-                RefreshToken = refreshToken
+                Message = "Đăng nhập thành công",
+                StatusCode = 200,
+                IsSuccess = true,
+                Response = new AuthResponseDTO()
+                {
+                    UserId = userId,
+                    Email= email,
+                    Name = userName,
+                    AccessToken = token,
+                    Expires = expiration,
+                    RefreshToken = refreshToken,
+                    Roles=roles.ToList()
+                }
             };
         }
     }

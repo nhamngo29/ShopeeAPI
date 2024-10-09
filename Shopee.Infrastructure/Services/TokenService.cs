@@ -88,5 +88,25 @@ namespace Shopee.Infrastructure.Services
 
             return principal;
         }
+        //public (string Token, DateTime Expiration) RefreshToken(string refreshToken)
+        //{
+        //    // Kiểm tra tính hợp lệ của refresh token (có thể lưu trong cơ sở dữ liệu hoặc một danh sách tạm thời)
+        //    if (!IsValidRefreshToken(refreshToken))
+        //    {
+        //        throw new SecurityTokenException("Invalid refresh token");
+        //    }
+
+        //    // Tạo userDetails từ thông tin của refresh token (ví dụ: userId, userName, roles)
+        //    //var userDetails = GetUserDetailsFromRefreshToken(refreshToken); // Bạn sẽ cần triển khai phương thức này
+
+        //    // Tạo JWT token mới
+        //    return GenerateJWTToken(userDetails);
+        //}
+        private bool IsValidRefreshToken(string refreshToken)
+        {
+            // Kiểm tra tính hợp lệ của refresh token
+            // Cần tùy chỉnh theo cách bạn lưu trữ và quản lý refresh tokens
+            return true; // Thay thế bằng logic kiểm tra thực tế
+        }
     }
 }
