@@ -41,7 +41,7 @@ namespace Shopee.Application.Commands.Auth
 
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
-            (string token, DateTime expiration) = _tokenGenerator.GenerateJWTToken((userId, userName, roles));
+            (string token, DateTime expiration) = _tokenGenerator.GenerateJWTToken((userId, userName, roles, email, fullName));
             string refreshToken = _tokenGenerator.GenerateRefreshToken();
             return new ApiReponse<AuthResponseDTO>()
             {
@@ -50,9 +50,6 @@ namespace Shopee.Application.Commands.Auth
                 IsSuccess = true,
                 Response = new AuthResponseDTO()
                 {
-                    UserId = userId,
-                    Email= email,
-                    Name = userName,
                     AccessToken = token,
                     Expires = expiration,
                     RefreshToken = refreshToken,

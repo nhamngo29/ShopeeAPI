@@ -28,6 +28,11 @@ namespace Shopee.Api.Controllers
         {
             return Ok();
         }
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] SigninCommand command)
+        {
+            return Ok(await _mediator.Send(command));
+        }
         //[HttpPost("Signin")]
         //[ProducesDefaultResponseType(typeof(int))]
         //public async Task<IActionResult> Signin([FromBody] SigninCommand command)

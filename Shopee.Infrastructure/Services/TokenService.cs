@@ -27,19 +27,19 @@ namespace Shopee.Infrastructure.Services
             _expiryMinutes = expiryMinutes;
         }
 
-        public (string Token, DateTime Expiration) GenerateJWTToken((string userId, string userName, IList<string> roles) userDetails)
+        public (string Token, DateTime Expiration) GenerateJWTToken((string userId, string userName, IList<string> roles,string email,string fullName) userDetails)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var (userId, userName, roles) = userDetails;
+            var (userId, userName, roles,email, fullName) = userDetails;
 
             var claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userName),
                 new Claim(JwtRegisteredClaimNames.Jti, userId),
-                new Claim(ClaimTypes.Name, userName),
-                new Claim("UserId", userId)
+                new Claim(ClaimTypes.Email,email),
+                new Claim("fullName",fullName)
             };
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 

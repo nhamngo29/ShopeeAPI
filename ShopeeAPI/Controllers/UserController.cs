@@ -31,9 +31,9 @@ namespace Shopee.Api.Controllers
         {
             return Ok(await _mediator.Send(command));
         }
-
+        [Authorize]
         [HttpGet("GetAll")]
-        [ProducesDefaultResponseType(typeof(List<UserResponseDTO>))]
+
         public async Task<IActionResult> GetAllUserAsync()
         {
             return Ok(await _mediator.Send(new Application.Queries.User.GetUserQuery()));
