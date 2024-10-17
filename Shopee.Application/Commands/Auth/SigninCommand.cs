@@ -51,12 +51,12 @@ namespace Shopee.Application.Commands.Auth
                 throw new Common.Exceptions.ValidationException(validationResult.Errors);
             }
             if (!await _identityService.IsUniqueUserName(request.UserName))
-                return new ApiReponse<AuthResponseDTO>()
-                {
-                    IsSuccess = false,
-                    StatusCode = 422,
-                    Message = $"{request.UserName} đã tồn tại"
-                };
+                throw new Common.Exceptions.ConflictException(
+                 new Dictionary<string, string[]>
+                 {
+                    { "UserName", new[] { "Tên đăng nhập đã tồn tại" } }
+                 }
+             );
             var result = await _identityService.CreateUserAsync(request.UserName, request.Password, request.Email, request.FullName, ["User"]);
             var resultSignUp = await _identityService.SigninUserAsync(request.UserName, request.Password);
             if (!resultSignUp)

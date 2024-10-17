@@ -31,12 +31,12 @@ namespace Shopee.Application.Commands.Auth
 
             if (!result)
             {
-                return new ApiReponse<AuthResponseDTO>()
-                {
-                    Message = "Đăng nhập không thành công",
-                    StatusCode = 400,
-                    IsSuccess = false,
-                };
+                throw new Common.Exceptions.ConflictException(
+                     new Dictionary<string, string[]>
+                     {
+                        { "password", new[] { "Tên đăng nhập hoặc mật khẩu không đúng" } }
+                     }
+                 );
             }
 
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));

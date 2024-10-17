@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Azure;
+using Newtonsoft.Json;
 using Shopee.Application.Common.Exceptions;
 using System.Net;
 
@@ -27,6 +28,10 @@ namespace Shopee.API.Middleware
             {
                 await HandleValidationExceptionAsync(httpContext, ex);
             }
+            catch(ConflictException ex)
+            {
+                await HandleConflictExceptionAsync(httpContext, ex);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(httpContext, ex);
@@ -46,7 +51,7 @@ namespace Shopee.API.Middleware
                 statusCode = 400,
             };
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
-        }
+        }   
         private Task HandleValidationExceptionAsync(HttpContext context, ValidationException exception)
         {
             context.Response.ContentType = "application/json";
@@ -57,10 +62,7 @@ namespace Shopee.API.Middleware
                 isSuccess = false,
                 message = "Đã xảy ra lỗi trong quá trình xử lý yêu cầu",
                 statusCode = 422,
-                response = new
-                {
-                    errors = exception.Errors
-                }
+                response = exception.Errors
             };
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
@@ -75,6 +77,21 @@ namespace Shopee.API.Middleware
                 isSuccess = false,
                 Message = "An unexpected error occurred.",
                 statusCode = 422,
+            };
+
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
+        }
+        private Task HandleConflictExceptionAsync(HttpContext context, ConflictException exception)
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+
+            var errorResponse = new
+            {
+                isSuccess = false,
+                Message = exception.Message,
+                statusCode = 409,
+                response=exception.Errors
             };
 
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
