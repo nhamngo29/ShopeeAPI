@@ -2,8 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
-using Shopee.Infrastructure.Identity;
-
+using Shopee.Domain.Entities;
 namespace Shopee.Infrastructure.Services
 {
     public class IdentityService : IIdentityService

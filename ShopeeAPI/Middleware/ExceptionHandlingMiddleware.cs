@@ -32,6 +32,10 @@ namespace Shopee.API.Middleware
             {
                 await HandleConflictExceptionAsync(httpContext, ex);
             }
+            catch(HttpStatusException ex)
+            {
+                await HandleHttpStatusException(httpContext, ex);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(httpContext, ex);
@@ -89,11 +93,23 @@ namespace Shopee.API.Middleware
             var errorResponse = new
             {
                 isSuccess = false,
-                Message = exception.Message,
+                message = exception.Message,
                 statusCode = 409,
                 response=exception.Errors
             };
 
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
+        }
+        public Task HandleHttpStatusException(HttpContext context,HttpStatusException exception)
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = exception.StatusCode;
+            var errorResponse = new
+            {
+                isSuccess = false,
+                message = exception.Message,
+                statusCode = exception.StatusCode
+            };
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
     }

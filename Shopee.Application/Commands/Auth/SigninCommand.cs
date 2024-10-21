@@ -2,6 +2,7 @@
 using MediatR;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
+using Shopee.Domain.Entities;
 
 namespace Shopee.Application.Commands.Auth
 {
@@ -54,7 +55,7 @@ namespace Shopee.Application.Commands.Auth
                 throw new Common.Exceptions.ConflictException(
                  new Dictionary<string, string[]>
                  {
-                    { "UserName", new[] { "Tên đăng nhập đã tồn tại" } }
+                    { "userName", new[] { "Tên đăng nhập đã tồn tại" } }
                  }
              );
             var result = await _identityService.CreateUserAsync(request.UserName, request.Password, request.Email, request.FullName, ["User"]);
@@ -72,7 +73,8 @@ namespace Shopee.Application.Commands.Auth
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
             (string token, DateTime expiration) = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
-            string refreshToken = _tokenService.GenerateRefreshToken();
+            (string refreshToken, DateTime expirationRefreshToken) = _tokenService.GenerateRefreshToken();
+            
             return new ApiReponse<AuthResponseDTO>()
             {
                 Message = "Đăng ký thành công",

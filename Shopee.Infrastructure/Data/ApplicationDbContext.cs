@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shopee.Application.Common.Interfaces;
-using Shopee.Infrastructure.Identity;
-using System.Reflection;
-
+using Shopee.Domain.Entities;
 namespace Shopee.Infrastructure.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {
+
     }
     protected override void OnModelCreating(ModelBuilder builder)
     {

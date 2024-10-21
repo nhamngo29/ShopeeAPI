@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shopee.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Shopee.Infrastructure.Data;
 namespace Shopee.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241020132756_addTableRefreshToken")]
+    partial class addTableRefreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,14 +54,14 @@ namespace Shopee.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e28ec7c4-7f19-4afd-9a71-b4b1d3320fd4",
+                            Id = "9b829d7d-9023-4a1b-b846-4e64e4374be0",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "1498bb27-e725-4cfa-9a08-0c73f14b12f7",
+                            Id = "2401723c-c4b0-4232-ac70-987c7c402dab",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
@@ -171,7 +174,24 @@ namespace Shopee.Infrastructure.Migrations
                     b.ToTable("UserToken", (string)null);
                 });
 
-            modelBuilder.Entity("Shopee.Domain.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("Shopee.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<string>("IdUser")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdUser");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Shopee.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -239,28 +259,6 @@ namespace Shopee.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Shopee.Domain.Entities.RefreshToken", b =>
-                {
-                    b.Property<string>("IdUser")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("IdUser");
-
-                    b.HasIndex("Id");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -272,7 +270,7 @@ namespace Shopee.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Shopee.Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Shopee.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -281,7 +279,7 @@ namespace Shopee.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Shopee.Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Shopee.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -296,7 +294,7 @@ namespace Shopee.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shopee.Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Shopee.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -305,20 +303,11 @@ namespace Shopee.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Shopee.Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Shopee.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Shopee.Domain.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("Shopee.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("Id");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

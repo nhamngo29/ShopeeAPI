@@ -11,7 +11,6 @@ namespace Shopee.Application.Common.Interfaces
     {
         //public string GenerateToken(string userName, string password);
         (string Token, DateTime Expiration) GenerateJWTToken((string userId, string userName, IList<string> roles,string email,string fullName) userDetails);
-        string GenerateRefreshToken();
-        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        (string RefreshToken, DateTime ExpirationRefreshToken) GenerateRefreshToken();
     }
 }

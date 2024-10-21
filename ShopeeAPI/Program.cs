@@ -16,10 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 var configuration = builder.Configuration;
 // For authentication
-var _key = configuration["Jwt:Key"];
-var _issuer = configuration["Jwt:Issuer"];
-var _audience = configuration["Jwt:Audience"];
-var _expirtyMinutes = configuration["Jwt:ExpiryMinutes"];
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
 builder.Services.AddAppDI(builder.Configuration);
 
@@ -54,17 +52,17 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidAudience = _audience,
-        ValidIssuer = _issuer,
+        ValidAudience = jwtSettings.Audience,
+        ValidIssuer = jwtSettings.Issuer,
 
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key)),
+        IssuerSigningKey = new SymmetricSecurityKey(secretKey),
         ClockSkew = TimeSpan.Zero
 
     };
 });
 
 // Dependency injection with key
-builder.Services.AddSingleton<ITokenService>(new TokenService(_key, _issuer, _audience, _expirtyMinutes));
+builder.Services.AddSingleton<ITokenService>(new TokenService(jwtSettings));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

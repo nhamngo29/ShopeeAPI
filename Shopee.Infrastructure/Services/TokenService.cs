@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Azure;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using Shopee.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -11,25 +13,25 @@ using System.Threading.Tasks;
 
 namespace Shopee.Infrastructure.Services
 {
+    public class JwtSettings
+    {
+        public string SecretKey { get; set; }
+        public string Issuer { get; set; }
+        public string Audience { get; set; }
+        public int AccessTokenExpirationMinutes { get; set; }
+        public int RefreshTokenExpirationDays { get; set; }
+    }
     public class TokenService : ITokenService
     {
-
-        private readonly string _key;
-        private readonly string _issuer;
-        private readonly string _audience;
-        private readonly string _expiryMinutes;
-
-        public TokenService(string key, string issueer, string audience, string expiryMinutes)
+        private readonly JwtSettings _jwtSettings;
+        public TokenService(JwtSettings jwtSettings)
         {
-            _key = key;
-            _issuer = issueer;
-            _audience = audience;
-            _expiryMinutes = expiryMinutes;
+            _jwtSettings=jwtSettings;
         }
 
         public (string Token, DateTime Expiration) GenerateJWTToken((string userId, string userName, IList<string> roles,string email,string fullName) userDetails)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var (userId, userName, roles,email, fullName) = userDetails;
@@ -44,11 +46,11 @@ namespace Shopee.Infrastructure.Services
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             // Xác định thời gian hết hạn token
-            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_expiryMinutes));
+            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings.AccessTokenExpirationMinutes)); 
 
             var token = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _audience,
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
                 expires: expiration, // Set thời gian hết hạn cho token
                 signingCredentials: signingCredentials
@@ -60,53 +62,14 @@ namespace Shopee.Infrastructure.Services
             // Trả về token cùng với thời gian hết hạn
             return (encodedToken, expiration);
         }
-
-
-        public string GenerateRefreshToken()
+        public (string RefreshToken, DateTime ExpirationRefreshToken) GenerateRefreshToken()
         {
-            var randomNumber = new byte[64];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
-        }
-
-        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key)),
-                ValidateLifetime = false
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid token");
-
-            return principal;
-        }
-        //public (string Token, DateTime Expiration) RefreshToken(string refreshToken)
-        //{
-        //    // Kiểm tra tính hợp lệ của refresh token (có thể lưu trong cơ sở dữ liệu hoặc một danh sách tạm thời)
-        //    if (!IsValidRefreshToken(refreshToken))
-        //    {
-        //        throw new SecurityTokenException("Invalid refresh token");
-        //    }
-
-        //    // Tạo userDetails từ thông tin của refresh token (ví dụ: userId, userName, roles)
-        //    //var userDetails = GetUserDetailsFromRefreshToken(refreshToken); // Bạn sẽ cần triển khai phương thức này
-
-        //    // Tạo JWT token mới
-        //    return GenerateJWTToken(userDetails);
-        //}
-        private bool IsValidRefreshToken(string refreshToken)
-        {
-            // Kiểm tra tính hợp lệ của refresh token
-            // Cần tùy chỉnh theo cách bạn lưu trữ và quản lý refresh tokens
-            return true; // Thay thế bằng logic kiểm tra thực tế
+                rng.GetBytes(randomNumber);
+                return (Convert.ToBase64String(randomNumber), DateTime.Now.AddDays(_jwtSettings.RefreshTokenExpirationDays));
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
+using Shopee.Domain.Entities;
 using MediatR;
 
 
@@ -16,13 +17,15 @@ namespace Shopee.Application.Commands.Auth
 
     public class AuthCommandHandler : IRequestHandler<AuthCommand, ApiReponse<AuthResponseDTO>>
     {
-        private readonly ITokenService _tokenGenerator;
+        private readonly ITokenService _tokenService;
         private readonly IIdentityService _identityService;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public AuthCommandHandler(IIdentityService identityService, ITokenService tokenGenerator)
+        public AuthCommandHandler(IIdentityService identityService, ITokenService tokenGenerator, IRefreshTokenService refreshTokenService)
         {
             _identityService = identityService;
-            _tokenGenerator = tokenGenerator;
+            _tokenService = tokenGenerator;
+            _refreshTokenService = refreshTokenService;
         }
 
         public async Task<ApiReponse<AuthResponseDTO>> Handle(AuthCommand request, CancellationToken cancellationToken)
@@ -31,18 +34,14 @@ namespace Shopee.Application.Commands.Auth
 
             if (!result)
             {
-                throw new Common.Exceptions.ConflictException(
-                     new Dictionary<string, string[]>
-                     {
-                        { "password", new[] { "Tên đăng nhập hoặc mật khẩu không đúng" } }
-                     }
-                 );
+                throw new HttpStatusException(401, "Tên tài khoản của bạn hoặc Mật khẩu không đúng, vui lòng thử lại");
             }
 
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
-            (string token, DateTime expiration) = _tokenGenerator.GenerateJWTToken((userId, userName, roles, email, fullName));
-            string refreshToken = _tokenGenerator.GenerateRefreshToken();
+            (string token, DateTime expiration) = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
+            (string refreshToken, DateTime expirationRefreshToken) = _tokenService.GenerateRefreshToken();
+            await _refreshTokenService.SaveRefreshToken(new RefreshToken(userId, refreshToken, expirationRefreshToken));
             return new ApiReponse<AuthResponseDTO>()
             {
                 Message = "Đăng nhập thành công",
