@@ -1,10 +1,6 @@
-﻿using Shopee.Application.Common.Exceptions;
-using Shopee.Application.Common.Interfaces;
+﻿using MediatR;
+using Shopee.Application.Common.Exceptions;
 using Shopee.Application.DTOs;
-using Shopee.Domain.Entities;
-using MediatR;
-
-
 
 namespace Shopee.Application.Commands.Auth
 {
@@ -14,23 +10,21 @@ namespace Shopee.Application.Commands.Auth
         public string Password { get; set; }
     }
 
-
     public class AuthCommandHandler : IRequestHandler<AuthCommand, ApiReponse<AuthResponseDTO>>
     {
         private readonly ITokenService _tokenService;
         private readonly IIdentityService _identityService;
-        private readonly IRefreshTokenService _refreshTokenService;
 
-        public AuthCommandHandler(IIdentityService identityService, ITokenService tokenGenerator, IRefreshTokenService refreshTokenService)
+        public AuthCommandHandler(IIdentityService identityService, ITokenService tokenGenerator)
         {
             _identityService = identityService;
             _tokenService = tokenGenerator;
-            _refreshTokenService = refreshTokenService;
         }
 
         public async Task<ApiReponse<AuthResponseDTO>> Handle(AuthCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.SigninUserAsync(request.UserName, request.Password);
+
 
             if (!result)
             {
@@ -39,20 +33,14 @@ namespace Shopee.Application.Commands.Auth
 
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
-            (string token, DateTime expiration) = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
-            (string refreshToken, DateTime expirationRefreshToken) = _tokenService.GenerateRefreshToken();
-            await _refreshTokenService.SaveRefreshToken(new RefreshToken(userId, refreshToken, expirationRefreshToken));
+            string token = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
             return new ApiReponse<AuthResponseDTO>()
             {
                 Message = "Đăng nhập thành công",
-                StatusCode = 200,
-                IsSuccess = true,
                 Response = new AuthResponseDTO()
                 {
                     AccessToken = token,
-                    Expires = expiration,
-                    RefreshToken = refreshToken,
-                    Roles=roles.ToList()
+                    Roles = roles.ToList()
                 }
             };
         }

@@ -1,40 +1,27 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Shopee.Application.Common;
 using Shopee.Application.Common.Interfaces;
-using System;
-using System.Collections.Generic;
+using Shopee.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Infrastructure.Services
 {
-    public class JwtSettings
-    {
-        public string SecretKey { get; set; }
-        public string Issuer { get; set; }
-        public string Audience { get; set; }
-        public int AccessTokenExpirationMinutes { get; set; }
-        public int RefreshTokenExpirationDays { get; set; }
-    }
-    public class TokenService : ITokenService
-    {
-        private readonly JwtSettings _jwtSettings;
-        public TokenService(JwtSettings jwtSettings)
-        {
-            _jwtSettings=jwtSettings;
-        }
 
-        public (string Token, DateTime Expiration) GenerateJWTToken((string userId, string userName, IList<string> roles,string email,string fullName) userDetails)
+    public class TokenService(SettingConfiguration appSettings) : ITokenService
+    {
+        private readonly SettingConfiguration _appSettings = appSettings;
+        private readonly ApplicationDbContext _context;
+
+        public string GenerateJWTToken((string userId, string userName, IList<string> roles, string email, string fullName) userDetails)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.Jwt.Key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var (userId, userName, roles,email, fullName) = userDetails;
+            var (userId, userName, roles, email, fullName) = userDetails;
 
             var claims = new List<Claim>()
             {
@@ -46,11 +33,11 @@ namespace Shopee.Infrastructure.Services
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             // Xác định thời gian hết hạn token
-            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings.AccessTokenExpirationMinutes)); 
+            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_appSettings.Jwt.AccessTokenExpirationMinutes));
 
             var token = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
+                issuer: _appSettings.Jwt.Issuer,
+                audience: _appSettings.Jwt.Audience,
                 claims: claims,
                 expires: expiration, // Set thời gian hết hạn cho token
                 signingCredentials: signingCredentials
@@ -60,16 +47,27 @@ namespace Shopee.Infrastructure.Services
             var encodedToken = new JwtSecurityTokenHandler().WriteToken(token);
 
             // Trả về token cùng với thời gian hết hạn
-            return (encodedToken, expiration);
+            return encodedToken;
         }
-        public (string RefreshToken, DateTime ExpirationRefreshToken) GenerateRefreshToken()
+
+        private ClaimsPrincipal? GetTokenPrincipal(string token)
         {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
+
+            IdentityModelEventSource.ShowPII = true;
+            TokenValidationParameters validationParameters = new()
             {
-                rng.GetBytes(randomNumber);
-                return (Convert.ToBase64String(randomNumber), DateTime.Now.AddDays(_jwtSettings.RefreshTokenExpirationDays));
-            }
+                ValidIssuer = _appSettings.Jwt.Issuer,
+                ValidAudience = _appSettings.Jwt.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.Jwt.Key)),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true
+            };
+
+            var principal = new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out _);
+
+            return principal;
         }
     }
 }

@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Shopee.API;
+using Shopee.API.Extensions;
 using Shopee.API.Middleware;
+using Shopee.Application.Common;
+using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Infrastructure.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var configuration = builder.Configuration.Get<SettingConfiguration>()
+    ?? throw ProgramException.AppsettingNotSetException();
 
-builder.Services.AddControllers();
-var configuration = builder.Configuration;
+builder.Services.AddSingleton(configuration);
+builder.Services.AddWebAPIService(configuration);
 // For authentication
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
 builder.Services.AddAppDI(builder.Configuration);
 
@@ -27,7 +28,6 @@ builder.Services.AddAuthentication(x =>
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    
 }).AddJwtBearer(x =>
 {
     x.Events = new JwtBearerEvents
@@ -36,62 +36,34 @@ builder.Services.AddAuthentication(x =>
         {
             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
             {
-                context.Response.StatusCode = 401;
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentType = "application/json";
-                var result = JsonConvert.SerializeObject(new { message = "Token đã hết hạn.", isSuccess=false,statusCode=401 });
+                var result = JsonConvert.SerializeObject(new { message = "Token đã hết hạn." });
                 return context.Response.WriteAsync(result);
             }
             return Task.CompletedTask;
         }
     };
     x.RequireHttpsMetadata = false;
-    x.SaveToken = false;
+    x.SaveToken = true;
     x.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidAudience = jwtSettings.Audience,
-        ValidIssuer = jwtSettings.Issuer,
-
-        IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+        ValidAudience = configuration.Jwt.Audience,
+        ValidIssuer = configuration.Jwt.Issuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.Jwt.Key)),
         ClockSkew = TimeSpan.Zero
-
     };
 });
 
 // Dependency injection with key
-builder.Services.AddSingleton<ITokenService>(new TokenService(jwtSettings));
+builder.Services.AddSingleton<ITokenService,TokenService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(option =>
-{
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
-});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
@@ -108,6 +80,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.ConfigureHealthCheck();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.Use(async (context, next) =>
 {
@@ -128,7 +101,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(option =>
     {
         option.InjectStylesheet("/swagger-ui/custom.css");
+        option.SwaggerEndpoint("/swagger/OpenAPISpecification/swagger.json", "Clean Architecture Specification");
+        option.RoutePrefix = "swagger";
     });
+
 }
 app.UseRouting();
 app.UseHttpsRedirection();

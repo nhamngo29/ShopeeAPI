@@ -1,8 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
-using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
-using Shopee.Domain.Entities;
 
 namespace Shopee.Application.Commands.Auth
 {
@@ -24,6 +22,7 @@ namespace Shopee.Application.Commands.Auth
     .Equal(t => t.Password).WithMessage("Password confirmation does not match the password.");
         }
     }
+
     public class SigninCommand : IRequest<ApiReponse<AuthResponseDTO>>
     {
         public string UserName { get; set; }
@@ -33,10 +32,11 @@ namespace Shopee.Application.Commands.Auth
         public string Email { get; set; }
     }
 
-    partial class SignInCommand : IRequestHandler<SigninCommand, ApiReponse<AuthResponseDTO>>
+    internal partial class SignInCommand : IRequestHandler<SigninCommand, ApiReponse<AuthResponseDTO>>
     {
         private readonly IIdentityService _identityService;
         private readonly ITokenService _tokenService;
+
         public SignInCommand(IIdentityService identityService, ITokenService tokenService)
         {
             _identityService = identityService;
@@ -65,30 +65,23 @@ namespace Shopee.Application.Commands.Auth
                 return new ApiReponse<AuthResponseDTO>()
                 {
                     Message = "Đăng ký thành công vui lòng đăng nhập",
-                    StatusCode = 200,
-                    IsSuccess = true,
                 };
             }
 
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
-            (string token, DateTime expiration) = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
-            (string refreshToken, DateTime expirationRefreshToken) = _tokenService.GenerateRefreshToken();
-            
+            string token = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
+
+
             return new ApiReponse<AuthResponseDTO>()
             {
                 Message = "Đăng ký thành công",
-                StatusCode = 200,
-                IsSuccess = true,
                 Response = new AuthResponseDTO()
                 {
                     AccessToken = token,
-                    Expires = expiration,
-                    RefreshToken = refreshToken,
                     Roles = roles.ToList()
                 }
             };
-
         }
     }
 }

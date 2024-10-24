@@ -1,10 +1,4 @@
-﻿using Shopee.Application.Common.Interfaces;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace Shopee.Application.Commands.User.Delete
 {
@@ -21,6 +15,7 @@ namespace Shopee.Application.Commands.User.Delete
         {
             _identityService = identityService;
         }
+
         public async Task<int> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.DeleteUserAsync(request.Id);

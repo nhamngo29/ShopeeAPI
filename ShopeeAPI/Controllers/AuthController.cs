@@ -1,43 +1,40 @@
-﻿using Shopee.Application.Commands.Auth;
-using Shopee.Application.DTOs;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shopee.API.Controllers;
+using Shopee.Application.Commands.Auth;
+using Shopee.Application.DTOs;
 
-namespace Shopee.Api.Controllers
+namespace Shopee.Api.Controllers;
+public class AuthController : BaseController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    private readonly IMediator _mediator;
+
+    public AuthController(IMediator mediator)
     {
-        private readonly IMediator _mediator;
+        _mediator = mediator;
+    }
 
-        public AuthController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+    [HttpPost("sign-in")]
+    [ProducesDefaultResponseType(typeof(AuthResponseDTO))]
+    public async Task<IActionResult> Login([FromBody] AuthCommand command)
+    {
+        return Ok(await _mediator.Send(command));
+    }
 
+    [HttpGet("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        return Ok();
+    }
 
-        [HttpPost("Login")]
-        [ProducesDefaultResponseType(typeof(AuthResponseDTO))]
-        public async Task<IActionResult> Login([FromBody] AuthCommand command)
-        {
-            return Ok(await _mediator.Send(command));
-        }
-        [HttpGet("RefreshToken")]
-        public async Task<IActionResult> RefreshToken()
-        {
-            return Ok();
-        }
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] SigninCommand command)
-        {
-            return Ok(await _mediator.Send(command));
-        }
-        //[HttpPost("Signin")]
-        //[ProducesDefaultResponseType(typeof(int))]
-        //public async Task<IActionResult> Signin([FromBody] SigninCommand command)
-        //{
-        //    return Ok(await _mediator.Send(command));
-        //}
+    [HttpPost("sign-up")]
+    public async Task<IActionResult> SignUp([FromBody] SigninCommand command)
+    {
+        return Ok(await _mediator.Send(command));
+    }
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        return Ok();
     }
 }

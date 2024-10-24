@@ -1,11 +1,5 @@
-﻿using Shopee.Application.Common.Interfaces;
+﻿using MediatR;
 using Shopee.Application.DTOs;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Application.Queries.User
 {
@@ -25,8 +19,6 @@ namespace Shopee.Application.Queries.User
 
         public async Task<List<UserDetailsResponseDTO>> Handle(GetAllUsersDetailsQuery request, CancellationToken cancellationToken)
         {
-
-
             var users = await _identityService.GetAllUsersAsync();
             var userDetails = users.Select(x => new UserDetailsResponseDTO()
             {

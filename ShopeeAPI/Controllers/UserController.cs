@@ -1,21 +1,16 @@
-﻿using Shopee.Application.Commands.User.Create;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shopee.Application.Commands.User.Create;
 using Shopee.Application.Commands.User.Delete;
 using Shopee.Application.Commands.User.Update;
 using Shopee.Application.DTOs;
 using Shopee.Application.Queries.User;
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
 
 namespace Shopee.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    //[Authorize(Roles = "Admin, Management")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -31,9 +26,9 @@ namespace Shopee.Api.Controllers
         {
             return Ok(await _mediator.Send(command));
         }
+
         [Authorize]
         [HttpGet("GetAll")]
-
         public async Task<IActionResult> GetAllUserAsync()
         {
             return Ok(await _mediator.Send(new Application.Queries.User.GetUserQuery()));
@@ -65,7 +60,6 @@ namespace Shopee.Api.Controllers
 
         [HttpPost("AssignRoles")]
         [ProducesDefaultResponseType(typeof(int))]
-
         public async Task<ActionResult> AssignRoles(AssignUsersRoleCommand command)
         {
             var result = await _mediator.Send(command);
@@ -74,7 +68,6 @@ namespace Shopee.Api.Controllers
 
         [HttpPut("EditUserRoles")]
         [ProducesDefaultResponseType(typeof(int))]
-
         public async Task<ActionResult> EditUserRoles(UpdateUserRolesCommand command)
         {
             var result = await _mediator.Send(command);
@@ -88,7 +81,6 @@ namespace Shopee.Api.Controllers
             var result = await _mediator.Send(new GetAllUsersDetailsQuery());
             return Ok(result);
         }
-
 
         [HttpPut("EditUserProfile/{id}")]
         [ProducesDefaultResponseType(typeof(int))]
@@ -104,6 +96,5 @@ namespace Shopee.Api.Controllers
                 return BadRequest();
             }
         }
-
     }
 }

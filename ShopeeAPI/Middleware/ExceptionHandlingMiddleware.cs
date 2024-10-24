@@ -1,5 +1,4 @@
-﻿using Azure;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Shopee.Application.Common.Exceptions;
 using System.Net;
 
@@ -28,11 +27,11 @@ namespace Shopee.API.Middleware
             {
                 await HandleValidationExceptionAsync(httpContext, ex);
             }
-            catch(ConflictException ex)
+            catch (ConflictException ex)
             {
                 await HandleConflictExceptionAsync(httpContext, ex);
             }
-            catch(HttpStatusException ex)
+            catch (HttpStatusException ex)
             {
                 await HandleHttpStatusException(httpContext, ex);
             }
@@ -40,7 +39,6 @@ namespace Shopee.API.Middleware
             {
                 await HandleExceptionAsync(httpContext, ex);
             }
-            
         }
 
         private Task HandleBadRequestExceptionAsync(HttpContext context, BadRequestException exception)
@@ -55,7 +53,8 @@ namespace Shopee.API.Middleware
                 statusCode = 400,
             };
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
-        }   
+        }
+
         private Task HandleValidationExceptionAsync(HttpContext context, ValidationException exception)
         {
             context.Response.ContentType = "application/json";
@@ -85,6 +84,7 @@ namespace Shopee.API.Middleware
 
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
+
         private Task HandleConflictExceptionAsync(HttpContext context, ConflictException exception)
         {
             context.Response.ContentType = "application/json";
@@ -95,12 +95,13 @@ namespace Shopee.API.Middleware
                 isSuccess = false,
                 message = exception.Message,
                 statusCode = 409,
-                response=exception.Errors
+                response = exception.Errors
             };
 
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
-        public Task HandleHttpStatusException(HttpContext context,HttpStatusException exception)
+
+        public Task HandleHttpStatusException(HttpContext context, HttpStatusException exception)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = exception.StatusCode;
@@ -113,5 +114,4 @@ namespace Shopee.API.Middleware
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
     }
-
 }

@@ -1,5 +1,4 @@
-﻿
-using Shopee.Application.Common.Interfaces;
+﻿using Shopee.Application.Common.Interfaces;
 using Shopee.Domain.Configuration;
 using Shopee.Infrastructure.Services;
 using StackExchange.Redis;

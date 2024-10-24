@@ -8,13 +8,14 @@ using StackExchange.Redis;
 
 namespace Shopee.Infrastructure.Services
 {
-    public class CacheService: ICacheService
+    public class CacheService : ICacheService
     {
         private readonly IDistributedCache _distributedCache;
         private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly IMemoryCache _memoryCache;
         private readonly RedisConfiguration _redisConfiguration;
         private readonly List<object> _cacheKeys;
+
         public CacheService(IDistributedCache distributedCache, IConnectionMultiplexer connectionMultiplexer, IMemoryCache memoryCache, RedisConfiguration redisConfiguration)
         {
             _distributedCache = distributedCache;
@@ -23,6 +24,7 @@ namespace Shopee.Infrastructure.Services
             _redisConfiguration = redisConfiguration;
             _cacheKeys = new List<object>();
         }
+
         public async Task<string?> GetCacheReponseAync(string cacheKey)
         {
             try
@@ -49,6 +51,7 @@ namespace Shopee.Infrastructure.Services
                 return null;
             }
         }
+
         private bool IsRedisEnabled()
         {
             return _redisConfiguration.Enabled && _connectionMultiplexer.IsConnected;
@@ -67,6 +70,7 @@ namespace Shopee.Infrastructure.Services
                 }
             }
         }
+
         public async Task SetCacheReponseAync(string cacheKey, object response, TimeSpan timeOut)
         {
             try
@@ -97,6 +101,7 @@ namespace Shopee.Infrastructure.Services
                 //_logging.StartLog($"{nameof(SetCacheReponseAync)} {ex.Message}");
             }
         }
+
         public void ClearAllCacheKeysInMemory(string pattern)//Xóa key trong memory
         {
             var keys = _cacheKeys.Where(t => t.ToString().StartsWith(pattern));
@@ -105,6 +110,7 @@ namespace Shopee.Infrastructure.Services
                 _memoryCache.Remove(key);
             }
         }
+
         public async Task RemoveCacheAsyncReponse(string pattern)
         {
             try

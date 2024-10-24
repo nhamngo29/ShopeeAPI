@@ -1,11 +1,5 @@
-﻿using Shopee.Application.Common.Interfaces;
+﻿using MediatR;
 using Shopee.Application.DTOs;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Application.Queries.Role
 {
@@ -22,6 +16,7 @@ namespace Shopee.Application.Queries.Role
         {
             _identityService = identityService;
         }
+
         public async Task<RoleResponseDTO> Handle(GetRoleByIdQuery request, CancellationToken cancellationToken)
         {
             var role = await _identityService.GetRoleByIdAsync(request.RoleId);

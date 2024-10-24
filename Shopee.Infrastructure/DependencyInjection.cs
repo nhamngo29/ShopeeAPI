@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Domain.Entities;
 using Shopee.Domain.Repositories.Command.Base;
@@ -18,8 +17,8 @@ namespace Shopee.Infrastructure
     {
         public static IServiceCollection AddInfrastructureDI(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = Environment.GetEnvironmentVariable("DatabaseShopeeClone")
-                               ?? configuration.GetConnectionString("DatabaseShopeeClone");
+            var connectionString = Environment.GetEnvironmentVariable("DefaultConnection")
+                               ?? configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<ApplicationDbContext>(option =>
                 option.UseSqlServer(connectionString, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
@@ -36,7 +35,6 @@ namespace Shopee.Infrastructure
                 options.Password.RequiredLength = 6;
             });
             services.AddScoped<IIdentityService, IdentityService>();
-            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddScoped(typeof(IQueryRepository<>), typeof(QueryRepository<>));
             services.AddScoped(typeof(ICommandRepository<>), typeof(CommandRepository<>));
             return services;

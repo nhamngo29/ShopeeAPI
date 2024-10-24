@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 
 namespace Shopee.Application.Common.Exceptions
 {

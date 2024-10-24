@@ -4,7 +4,6 @@
     {
         public void InstrallServices(IServiceCollection services, IConfiguration configuration)
         {
-             
         }
     }
 }

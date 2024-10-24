@@ -10,7 +10,6 @@ namespace Shopee.Infrastructure.Repository.Query.Base
         public QueryRepository(IConfiguration configuration)
             : base(configuration)
         {
-
         }
     }
 }

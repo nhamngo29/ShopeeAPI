@@ -1,10 +1,4 @@
-﻿using Shopee.Application.Common.Interfaces;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace Shopee.Application.Commands.User.Update
 {
@@ -24,6 +18,7 @@ namespace Shopee.Application.Commands.User.Update
         {
             _identityService = identityService;
         }
+
         public async Task<int> Handle(EditUserProfileCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.UpdateUserProfile(request.Id, request.FullName, request.Email, request.Roles);

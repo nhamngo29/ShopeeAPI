@@ -1,10 +1,4 @@
-﻿using Shopee.Application.Common.Interfaces;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace Shopee.Application.Commands.User.Create
 {
@@ -21,10 +15,12 @@ namespace Shopee.Application.Commands.User.Create
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, int>
     {
         private readonly IIdentityService _identityService;
+
         public CreateUserCommandHandler(IIdentityService identityService)
         {
             _identityService = identityService;
         }
+
         public async Task<int> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.CreateUserAsync(request.UserName, request.Password, request.Email, request.FullName, request.Roles);

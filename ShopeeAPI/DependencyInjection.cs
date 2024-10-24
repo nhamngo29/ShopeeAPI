@@ -1,5 +1,6 @@
-﻿using Shopee.Infrastructure;
-using Shopee.Application;
+﻿using Shopee.Application;
+using Shopee.Infrastructure;
+
 namespace Shopee.API
 {
     public static class DependencyInjection

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Domain.Entities;
+
 namespace Shopee.Infrastructure.Services
 {
     public class IdentityService : IIdentityService
@@ -40,7 +41,6 @@ namespace Shopee.Infrastructure.Services
             }
             return result.Succeeded;
         }
-
 
         // Return multiple value
         public async Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles)
@@ -214,8 +214,6 @@ namespace Shopee.Infrastructure.Services
         {
             var result = await _signInManager.PasswordSignInAsync(userName, password, true, false);
             return result.Succeeded;
-
-
         }
 
         public async Task<bool> UpdateUserProfile(string id, string fullName, string email, IList<string> roles)

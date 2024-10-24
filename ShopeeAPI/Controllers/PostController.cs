@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Shopee.API.Models;
 
 namespace Shopee.API.Controllers
@@ -56,11 +55,13 @@ namespace Shopee.API.Controllers
         Published = true
     }
 };
+
         [HttpGet]
         public ActionResult<IEnumerable<Post>> GetPosts()
         {
             return Ok(Posts);
         }
+
         [HttpGet("{id}")]
         public ActionResult<Post> GetPost(string id)
         {
@@ -75,10 +76,10 @@ namespace Shopee.API.Controllers
         [HttpPost]
         public ActionResult<Post> CreatePost(Post post)
         {
-            if(post.PublishDate < DateTime.Now)
+            if (post.PublishDate < DateTime.Now)
             {
                 return StatusCode(422, new { publishDate = "Không được publish vào thời điểm trong quá khứ" });
-            }    
+            }
             post.Id = System.Guid.NewGuid().ToString();
             Posts.Add(post);
             return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);

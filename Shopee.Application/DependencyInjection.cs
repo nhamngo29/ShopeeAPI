@@ -1,10 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Shopee.Application.Services;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Application
 {
@@ -16,8 +12,9 @@ namespace Shopee.Application
             services.AddMediatR(ctg =>
             {
                 ctg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-
             });
+
+            services.AddScoped<IMailService, MailService>();
             return services;
         }
     }

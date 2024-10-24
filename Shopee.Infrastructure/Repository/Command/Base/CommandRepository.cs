@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shopee.Domain.Repositories.Command.Base;
 using Shopee.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Infrastructure.Repository.Command.Base
 {

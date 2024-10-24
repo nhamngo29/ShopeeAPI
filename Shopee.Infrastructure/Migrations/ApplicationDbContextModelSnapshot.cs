@@ -51,14 +51,14 @@ namespace Shopee.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e28ec7c4-7f19-4afd-9a71-b4b1d3320fd4",
+                            Id = "e72ed4dc-89d4-4152-b414-3dca638e7c97",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "1498bb27-e725-4cfa-9a08-0c73f14b12f7",
+                            Id = "ed903a96-9ffc-4371-b537-d65172a3650e",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
@@ -216,6 +216,12 @@ namespace Shopee.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpiry")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -237,28 +243,6 @@ namespace Shopee.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("Shopee.Domain.Entities.RefreshToken", b =>
-                {
-                    b.Property<string>("IdUser")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("IdUser");
-
-                    b.HasIndex("Id");
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -310,15 +294,6 @@ namespace Shopee.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Shopee.Domain.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("Shopee.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("Id");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

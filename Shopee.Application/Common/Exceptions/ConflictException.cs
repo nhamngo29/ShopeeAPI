@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Shopee.Application.Common.Exceptions
+﻿namespace Shopee.Application.Common.Exceptions
 {
     public class ConflictException : Exception
     {
         public IDictionary<string, string[]>? Errors { get; }
+
         public ConflictException() : base()
         {
-
         }
 
         public ConflictException(string message) : base(message)
         {
-
         }
 
         public ConflictException(IDictionary<string, string[]> errors, string message) : base(message)

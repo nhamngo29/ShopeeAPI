@@ -18,6 +18,7 @@ namespace ShopeeAPI.Controllers
         {
             _logger = logger;
         }
+
         [Authorize]
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
@@ -30,6 +31,5 @@ namespace ShopeeAPI.Controllers
             })
             .ToArray();
         }
-
     }
 }

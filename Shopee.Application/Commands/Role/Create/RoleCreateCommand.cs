@@ -1,6 +1,4 @@
-﻿using Shopee.Application.Common.Interfaces;
-using MediatR;
-
+﻿using MediatR;
 
 namespace Shopee.Application.Commands.Role.Create
 {
@@ -17,6 +15,7 @@ namespace Shopee.Application.Commands.Role.Create
         {
             _identityService = identityService;
         }
+
         public async Task<int> Handle(RoleCreateCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.CreateRoleAsync(request.RoleName);
