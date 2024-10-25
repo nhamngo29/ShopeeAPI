@@ -8,66 +8,70 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Shopee.Infrastructure.Services
+namespace Shopee.Infrastructure.Services;
+
+public class TokenService(SettingConfiguration appSettings) : ITokenService
 {
+    private readonly ApplicationDbContext _context;
 
-    public class TokenService(SettingConfiguration appSettings) : ITokenService
+    public string GenerateJWTToken((string userId, string userName, IList<string> roles, string email, string fullName) userDetails)
     {
-        private readonly SettingConfiguration _appSettings = appSettings;
-        private readonly ApplicationDbContext _context;
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.Key));
+        var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        public string GenerateJWTToken((string userId, string userName, IList<string> roles, string email, string fullName) userDetails)
+        var (userId, userName, roles, email, fullName) = userDetails;
+
+        var claims = new List<Claim>()
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.Jwt.Key));
-            var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            new Claim(JwtRegisteredClaimNames.Sub, userName),
+            new Claim(JwtRegisteredClaimNames.Jti, userId),
+            new Claim(ClaimTypes.Email,email),
+            new Claim("fullName",fullName)
+        };
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var (userId, userName, roles, email, fullName) = userDetails;
+        // Xác định thời gian hết hạn token
+        var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(appSettings.Jwt.AccessTokenExpirationMinutes));
 
-            var claims = new List<Claim>()
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, userName),
-                new Claim(JwtRegisteredClaimNames.Jti, userId),
-                new Claim(ClaimTypes.Email,email),
-                new Claim("fullName",fullName)
-            };
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        var token = new JwtSecurityToken(
+            issuer: appSettings.Jwt.Issuer,
+            audience: appSettings.Jwt.Audience,
+            claims: claims,
+            expires: expiration, // Set thời gian hết hạn cho token
+            signingCredentials: signingCredentials
+        );
 
-            // Xác định thời gian hết hạn token
-            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_appSettings.Jwt.AccessTokenExpirationMinutes));
+        // Encode token thành chuỗi
+        var encodedToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            var token = new JwtSecurityToken(
-                issuer: _appSettings.Jwt.Issuer,
-                audience: _appSettings.Jwt.Audience,
-                claims: claims,
-                expires: expiration, // Set thời gian hết hạn cho token
-                signingCredentials: signingCredentials
-            );
+        // Trả về token cùng với thời gian hết hạn
+        return encodedToken;
+    }
 
-            // Encode token thành chuỗi
-            var encodedToken = new JwtSecurityTokenHandler().WriteToken(token);
+    public  string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
+    public ClaimsPrincipal? ValidateToken(string token)
+    {
 
-            // Trả về token cùng với thời gian hết hạn
-            return encodedToken;
-        }
-
-        private ClaimsPrincipal? GetTokenPrincipal(string token)
+        IdentityModelEventSource.ShowPII = true;
+        TokenValidationParameters validationParameters = new()
         {
+            ValidIssuer = appSettings.Jwt.Issuer,
+            ValidAudience = appSettings.Jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.Key)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = false,
+            ValidateIssuerSigningKey = true
+        };
 
-            IdentityModelEventSource.ShowPII = true;
-            TokenValidationParameters validationParameters = new()
-            {
-                ValidIssuer = _appSettings.Jwt.Issuer,
-                ValidAudience = _appSettings.Jwt.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.Jwt.Key)),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = false,
-                ValidateIssuerSigningKey = true
-            };
+        var principal = new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out _);
 
-            var principal = new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out _);
-
-            return principal;
-        }
+        return principal;
     }
 }

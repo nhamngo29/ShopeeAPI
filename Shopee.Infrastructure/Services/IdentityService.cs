@@ -253,5 +253,11 @@ namespace Shopee.Infrastructure.Services
 
             return result.Succeeded;
         }
+
+        public async Task<(DateTime RefreshTokenExpiry, string? RefreshToken)> GetRefreshTokenByIdUser(string id)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
+            return (user.RefreshTokenExpiry, user.RefreshToken);
+        }
     }
 }

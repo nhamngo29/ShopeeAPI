@@ -11,34 +11,28 @@ namespace Shopee.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public UserController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
 
         [HttpPost("Create")]
         [ProducesDefaultResponseType(typeof(int))]
         public async Task<ActionResult> CreateUser(CreateUserCommand command)
         {
-            return Ok(await _mediator.Send(command));
+            return Ok(await mediator.Send(command));
         }
 
         [Authorize]
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllUserAsync()
         {
-            return Ok(await _mediator.Send(new Application.Queries.User.GetUserQuery()));
+            return Ok(await mediator.Send(new Application.Queries.User.GetUserQuery()));
         }
 
         [HttpDelete("Delete/{userId}")]
         [ProducesDefaultResponseType(typeof(int))]
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            var result = await _mediator.Send(new DeleteUserCommand() { Id = userId });
+            var result = await mediator.Send(new DeleteUserCommand() { Id = userId });
             return Ok(result);
         }
 
@@ -46,7 +40,7 @@ namespace Shopee.Api.Controllers
         [ProducesDefaultResponseType(typeof(UserDetailsResponseDTO))]
         public async Task<IActionResult> GetUserDetails(string userId)
         {
-            var result = await _mediator.Send(new GetUserDetailsQuery() { UserId = userId });
+            var result = await mediator.Send(new GetUserDetailsQuery() { UserId = userId });
             return Ok(result);
         }
 
@@ -54,7 +48,7 @@ namespace Shopee.Api.Controllers
         [ProducesDefaultResponseType(typeof(UserDetailsResponseDTO))]
         public async Task<IActionResult> GetUserDetailsByUserName(string userName)
         {
-            var result = await _mediator.Send(new GetUserDetailsByUserNameQuery() { UserName = userName });
+            var result = await mediator.Send(new GetUserDetailsByUserNameQuery() { UserName = userName });
             return Ok(result);
         }
 
@@ -62,7 +56,7 @@ namespace Shopee.Api.Controllers
         [ProducesDefaultResponseType(typeof(int))]
         public async Task<ActionResult> AssignRoles(AssignUsersRoleCommand command)
         {
-            var result = await _mediator.Send(command);
+            var result = await mediator.Send(command);
             return Ok(result);
         }
 
@@ -70,7 +64,7 @@ namespace Shopee.Api.Controllers
         [ProducesDefaultResponseType(typeof(int))]
         public async Task<ActionResult> EditUserRoles(UpdateUserRolesCommand command)
         {
-            var result = await _mediator.Send(command);
+            var result = await mediator.Send(command);
             return Ok(result);
         }
 
@@ -78,7 +72,8 @@ namespace Shopee.Api.Controllers
         [ProducesDefaultResponseType(typeof(UserDetailsResponseDTO))]
         public async Task<IActionResult> GetAllUserDetails()
         {
-            var result = await _mediator.Send(new GetAllUsersDetailsQuery());
+            
+            var result = await mediator.Send(new GetAllUsersDetailsQuery());
             return Ok(result);
         }
 
@@ -88,7 +83,7 @@ namespace Shopee.Api.Controllers
         {
             if (id == command.Id)
             {
-                var result = await _mediator.Send(command);
+                var result = await mediator.Send(command);
                 return Ok(result);
             }
             else

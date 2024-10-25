@@ -2,6 +2,7 @@
 {
     public interface IIdentityService
     {
+        Task<(DateTime RefreshTokenExpiry, string? RefreshToken)> GetRefreshTokenByIdUser(string id);
         // User section
         Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles);
 

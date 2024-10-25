@@ -82,6 +82,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 app.ConfigureHealthCheck();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.ConfigureExceptionHandler();
 app.Use(async (context, next) =>
 {
     try

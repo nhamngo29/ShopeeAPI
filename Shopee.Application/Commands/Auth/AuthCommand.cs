@@ -25,7 +25,6 @@ namespace Shopee.Application.Commands.Auth
         {
             var result = await _identityService.SigninUserAsync(request.UserName, request.Password);
 
-
             if (!result)
             {
                 throw new HttpStatusException(401, "Tên tài khoản của bạn hoặc Mật khẩu không đúng, vui lòng thử lại");
@@ -34,6 +33,7 @@ namespace Shopee.Application.Commands.Auth
             var (userId, fullName, userName, email, roles) = await _identityService.GetUserDetailsAsync(await _identityService.GetUserIdAsync(request.UserName));
 
             string token = _tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
+
             return new ApiReponse<AuthResponseDTO>()
             {
                 Message = "Đăng nhập thành công",
