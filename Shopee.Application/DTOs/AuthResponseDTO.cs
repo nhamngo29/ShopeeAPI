@@ -2,7 +2,8 @@
 {
     public class AuthResponseDTO
     {
-        public string AccessToken { get; set; }
-        public List<string> Roles { get; set; }
+        public string RefreshToken { get; set; }
+        public string AccessToken { get; set; } 
+        public IList<string> Roles { get; set; }
     }
 }

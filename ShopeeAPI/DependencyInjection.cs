@@ -1,4 +1,5 @@
 ﻿using Shopee.Application;
+using Shopee.Application.Common.Interfaces;
 using Shopee.Infrastructure;
 
 namespace Shopee.API
@@ -7,6 +8,7 @@ namespace Shopee.API
     {
         public static IServiceCollection AddAppDI(this IServiceCollection services, IConfiguration configuration)
         {
+
             services.AddApplicationDI().AddInfrastructureDI(configuration);
 
             return services;

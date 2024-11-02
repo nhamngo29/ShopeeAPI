@@ -35,6 +35,7 @@ namespace Shopee.Infrastructure
                 options.Password.RequiredLength = 6;
             });
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddSingleton<ITokenService, TokenService>();
             services.AddScoped(typeof(IQueryRepository<>), typeof(QueryRepository<>));
             services.AddScoped(typeof(ICommandRepository<>), typeof(CommandRepository<>));
             return services;

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shopee.API.Controllers;
 using Shopee.Application.Commands.Auth;
@@ -10,16 +11,17 @@ public class AuthController(IMediator mediator) : BaseController
 
     [HttpPost("sign-in")]
     [ProducesDefaultResponseType(typeof(AuthResponseDTO))]
-    public async Task<IActionResult> Login([FromBody] AuthCommand command) => Ok(await mediator.Send(command));
+    public async Task<IActionResult> Login([FromBody] SignInCommand command) => Ok(await mediator.Send(command));
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshCommand command) => Ok(await mediator.Send(command));
 
     [HttpPost("sign-up")]
-    public async Task<IActionResult> SignUp([FromBody] SigninCommand command)
+    public async Task<IActionResult> SignUp([FromBody] SignUpCommand command)
     {
         return Ok(await mediator.Send(command));
     }
-    [HttpPost("logout")]
-    public async Task<IActionResult> Logout() => Ok();
+    [HttpPost("sign-out")]
+    [Authorize]
+    public async Task<IActionResult> Logout(SignOutCommand command) => Ok(await mediator.Send(command));
 }

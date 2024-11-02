@@ -12,8 +12,6 @@ namespace Shopee.Infrastructure.Services;
 
 public class TokenService(SettingConfiguration appSettings) : ITokenService
 {
-    private readonly ApplicationDbContext _context;
-
     public string GenerateJWTToken((string userId, string userName, IList<string> roles, string email, string fullName) userDetails)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.Key));
@@ -25,7 +23,7 @@ public class TokenService(SettingConfiguration appSettings) : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Sub, userName),
             new Claim(JwtRegisteredClaimNames.Jti, userId),
-            new Claim(ClaimTypes.Email,email),
+            new Claim("email",email),
             new Claim("fullName",fullName)
         };
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -48,7 +46,7 @@ public class TokenService(SettingConfiguration appSettings) : ITokenService
         return encodedToken;
     }
 
-    public  string GenerateRefreshToken()
+    public string GenerateRefreshToken()
     {
         var randomNumber = new byte[32];
         using var rng = RandomNumberGenerator.Create();
@@ -57,7 +55,6 @@ public class TokenService(SettingConfiguration appSettings) : ITokenService
     }
     public ClaimsPrincipal? ValidateToken(string token)
     {
-
         IdentityModelEventSource.ShowPII = true;
         TokenValidationParameters validationParameters = new()
         {
@@ -74,4 +71,5 @@ public class TokenService(SettingConfiguration appSettings) : ITokenService
 
         return principal;
     }
+
 }

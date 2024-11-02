@@ -9,12 +9,14 @@ using Shopee.Application.Common;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Infrastructure.Services;
+using System.Net.Http.Headers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration.Get<SettingConfiguration>()
     ?? throw ProgramException.AppsettingNotSetException();
+
 
 builder.Services.AddSingleton(configuration);
 builder.Services.AddWebAPIService(configuration);
@@ -32,14 +34,11 @@ builder.Services.AddAuthentication(x =>
 {
     x.Events = new JwtBearerEvents
     {
-        OnAuthenticationFailed = context =>
+        OnMessageReceived = context =>
         {
-            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+            if (context.Request.Cookies.ContainsKey("X-Access-Token"))
             {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.ContentType = "application/json";
-                var result = JsonConvert.SerializeObject(new { message = "Token đã hết hạn." });
-                return context.Response.WriteAsync(result);
+                context.Token = context.Request.Cookies["X-Access-Token"];
             }
             return Task.CompletedTask;
         }
@@ -60,7 +59,8 @@ builder.Services.AddAuthentication(x =>
 });
 
 // Dependency injection with key
-builder.Services.AddSingleton<ITokenService,TokenService>();
+
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -70,10 +70,10 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder
-            .WithOrigins("http://localhost:3000")
-            .AllowAnyMethod()
-            .AllowAnyHeader() // Allow any header
-            .AllowCredentials();
+                .WithOrigins("http://localhost:3000", "https://localhost:3000") // Địa chỉ client
+                .AllowAnyMethod()
+                .AllowAnyHeader() // Cho phép bất kỳ header nào
+                .AllowCredentials(); // Cho phép gửi cookie
         });
 });
 builder.Services.AddEndpointsApiExplorer();
@@ -87,6 +87,7 @@ app.Use(async (context, next) =>
 {
     try
     {
+        
         await next.Invoke();
     }
     catch (UnauthorizedAccessException)

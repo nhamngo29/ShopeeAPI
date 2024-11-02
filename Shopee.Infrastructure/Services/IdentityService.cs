@@ -6,35 +6,25 @@ using Shopee.Domain.Entities;
 
 namespace Shopee.Infrastructure.Services
 {
-    public class IdentityService : IIdentityService
+    public class IdentityService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager) : IIdentityService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public IdentityService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _roleManager = roleManager;
-            _roleManager = roleManager;
-        }
 
         public async Task<bool> AssignUserToRole(string userName, IList<string> roles)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
 
-            var result = await _userManager.AddToRolesAsync(user, roles);
+            var result = await userManager.AddToRolesAsync(user, roles);
             return result.Succeeded;
         }
 
         public async Task<bool> CreateRoleAsync(string roleName)
         {
-            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            var result = await roleManager.CreateAsync(new IdentityRole(roleName));
             if (!result.Succeeded)
             {
                 throw new ValidationException(result.Errors);
@@ -52,14 +42,14 @@ namespace Shopee.Infrastructure.Services
                 Email = email
             };
 
-            var result = await _userManager.CreateAsync(user, password);
+            var result = await userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
             {
                 throw new ValidationException(result.Errors);
             }
 
-            var addUserRole = await _userManager.AddToRolesAsync(user, roles);
+            var addUserRole = await userManager.AddToRolesAsync(user, roles);
             if (!addUserRole.Succeeded)
             {
                 throw new ValidationException(addUserRole.Errors);
@@ -69,7 +59,7 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<bool> DeleteRoleAsync(string roleId)
         {
-            var roleDetails = await _roleManager.FindByIdAsync(roleId);
+            var roleDetails = await roleManager.FindByIdAsync(roleId);
             if (roleDetails == null)
             {
                 throw new NotFoundException("Role not found");
@@ -79,7 +69,7 @@ namespace Shopee.Infrastructure.Services
             {
                 throw new BadRequestException("You can not delete Administrator Role");
             }
-            var result = await _roleManager.DeleteAsync(roleDetails);
+            var result = await roleManager.DeleteAsync(roleDetails);
             if (!result.Succeeded)
             {
                 throw new ValidationException(result.Errors);
@@ -89,7 +79,7 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<bool> DeleteUserAsync(string userId)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
@@ -101,13 +91,13 @@ namespace Shopee.Infrastructure.Services
                 throw new Exception("You can not delete system or admin user");
                 //throw new BadRequestException("You can not delete system or admin user");
             }
-            var result = await _userManager.DeleteAsync(user);
+            var result = await userManager.DeleteAsync(user);
             return result.Succeeded;
         }
 
         public async Task<List<(string id, string fullName, string userName, string email)>> GetAllUsersAsync()
         {
-            var users = await _userManager.Users.Select(x => new
+            var users = await userManager.Users.Select(x => new
             {
                 x.Id,
                 x.FullName,
@@ -130,7 +120,7 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<List<(string id, string roleName)>> GetRolesAsync()
         {
-            var roles = await _roleManager.Roles.Select(x => new
+            var roles = await roleManager.Roles.Select(x => new
             {
                 x.Id,
                 x.Name
@@ -141,94 +131,94 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<(string userId, string fullName, string UserName, string email, IList<string> roles)> GetUserDetailsAsync(string userId)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await userManager.GetRolesAsync(user);
             return (user.Id, user.FullName, user.UserName, user.Email, roles);
         }
 
         public async Task<(string userId, string fullName, string UserName, string email, IList<string> roles)> GetUserDetailsByUserNameAsync(string userName)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await userManager.GetRolesAsync(user);
             return (user.Id, user.FullName, user.UserName, user.Email, roles);
         }
 
         public async Task<string> GetUserIdAsync(string userName)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
                 //throw new Exception("User not found");
             }
-            return await _userManager.GetUserIdAsync(user);
+            return await userManager.GetUserIdAsync(user);
         }
 
         public async Task<string> GetUserNameAsync(string userId)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
                 //throw new Exception("User not found");
             }
-            return await _userManager.GetUserNameAsync(user);
+            return await userManager.GetUserNameAsync(user);
         }
 
-        public async Task<List<string>> GetUserRolesAsync(string userId)
+        public async Task<IList<string>> GetUserRolesAsync(string userId)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await userManager.GetRolesAsync(user);
             return roles.ToList();
         }
 
         public async Task<bool> IsInRoleAsync(string userId, string role)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
-            return await _userManager.IsInRoleAsync(user, role);
+            return await userManager.IsInRoleAsync(user, role);
         }
 
         public async Task<bool> IsUniqueUserName(string userName)
         {
-            return await _userManager.FindByNameAsync(userName) == null;
+            return await userManager.FindByNameAsync(userName) == null;
         }
 
         public async Task<bool> SigninUserAsync(string userName, string password)
         {
-            var result = await _signInManager.PasswordSignInAsync(userName, password, true, false);
+            var result = await signInManager.PasswordSignInAsync(userName, password, true, false);
             return result.Succeeded;
         }
 
         public async Task<bool> UpdateUserProfile(string id, string fullName, string email, IList<string> roles)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await userManager.FindByIdAsync(id);
             user.FullName = fullName;
             user.Email = email;
-            var result = await _userManager.UpdateAsync(user);
+            var result = await userManager.UpdateAsync(user);
 
             return result.Succeeded;
         }
 
         public async Task<(string id, string roleName)> GetRoleByIdAsync(string id)
         {
-            var role = await _roleManager.FindByIdAsync(id);
+            var role = await roleManager.FindByIdAsync(id);
             return (role.Id, role.Name);
         }
 
@@ -236,9 +226,9 @@ namespace Shopee.Infrastructure.Services
         {
             if (roleName != null)
             {
-                var role = await _roleManager.FindByIdAsync(id);
+                var role = await roleManager.FindByIdAsync(id);
                 role.Name = roleName;
-                var result = await _roleManager.UpdateAsync(role);
+                var result = await roleManager.UpdateAsync(role);
                 return result.Succeeded;
             }
             return false;
@@ -246,18 +236,24 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<bool> UpdateUsersRole(string userName, IList<string> usersRole)
         {
-            var user = await _userManager.FindByNameAsync(userName);
-            var existingRoles = await _userManager.GetRolesAsync(user);
-            var result = await _userManager.RemoveFromRolesAsync(user, existingRoles);
-            result = await _userManager.AddToRolesAsync(user, usersRole);
+            var user = await userManager.FindByNameAsync(userName);
+            var existingRoles = await userManager.GetRolesAsync(user);
+            var result = await userManager.RemoveFromRolesAsync(user, existingRoles);
+            result = await userManager.AddToRolesAsync(user, usersRole);
 
             return result.Succeeded;
         }
 
-        public async Task<(DateTime RefreshTokenExpiry, string? RefreshToken)> GetRefreshTokenByIdUser(string id)
+        public async Task<ApplicationUser> GetRefreshTokenByIdUser(string id)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
-            return (user.RefreshTokenExpiry, user.RefreshToken);
+            return await userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<bool> SaveRefreshTokenUser(ApplicationUser user)
+        {
+            user.RefreshTokenExpiry=DateTime.Now.AddDays(7);
+            var result = await userManager.UpdateAsync(user);
+            return result.Succeeded;
         }
     }
 }

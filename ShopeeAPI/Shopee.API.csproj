@@ -32,4 +32,8 @@
     <ProjectReference Include="..\Shopee.Infrastructure\Shopee.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

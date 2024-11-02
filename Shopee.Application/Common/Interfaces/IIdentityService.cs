@@ -1,8 +1,10 @@
-﻿namespace Shopee.Application.Common.Interfaces
+﻿using Shopee.Domain.Entities;
+
+namespace Shopee.Application.Common.Interfaces
 {
     public interface IIdentityService
     {
-        Task<(DateTime RefreshTokenExpiry, string? RefreshToken)> GetRefreshTokenByIdUser(string id);
+        Task<ApplicationUser> GetRefreshTokenByIdUser(string id);
         // User section
         Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles);
 
@@ -40,10 +42,12 @@
         // User's Role section
         Task<bool> IsInRoleAsync(string userId, string role);
 
-        Task<List<string>> GetUserRolesAsync(string userId);
+        Task<IList<string>> GetUserRolesAsync(string userId);
 
         Task<bool> AssignUserToRole(string userName, IList<string> roles);
 
         Task<bool> UpdateUsersRole(string userName, IList<string> usersRole);
+        Task<bool> SaveRefreshTokenUser(ApplicationUser user);
+
     }
 }

@@ -3,19 +3,23 @@ using Shopee.Application.Common.Exceptions;
 
 public class CookieService(IHttpContextAccessor httpContextAccessor): ICookieService
 {
-    public void Set(string token) => httpContextAccessor.HttpContext?.Response.Cookies.Append("token_key", token, new CookieOptions
+    public void Set(string token)
     {
-        HttpOnly = true,
-        SameSite = SameSiteMode.None,
-        Secure = true,
-        MaxAge = TimeSpan.FromMinutes(30)
-    });
+        var options = new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.None,
+            Secure = true,
+            MaxAge = TimeSpan.FromMinutes(30)
+        };
+        httpContextAccessor.HttpContext?.Response.Cookies.Append("X-Access-Token", token, options);
+    }
 
-    public void Delete() => httpContextAccessor.HttpContext?.Response.Cookies.Delete("token_key");
+    public void Delete() => httpContextAccessor.HttpContext?.Response.Cookies.Delete("X-Access-Token");
 
     public string Get()
     {
-        var token = httpContextAccessor.HttpContext?.Request.Cookies["token_key"];
+        var token = httpContextAccessor.HttpContext?.Request.Cookies["X-Access-Token"];
         return string.IsNullOrEmpty(token) ? throw UserException.UserUnauthorizedException() : token;
     }
 }
