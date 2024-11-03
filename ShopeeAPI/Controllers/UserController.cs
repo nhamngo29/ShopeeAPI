@@ -72,7 +72,7 @@ namespace Shopee.Api.Controllers
         [ProducesDefaultResponseType(typeof(UserDetailsResponseDTO))]
         public async Task<IActionResult> GetAllUserDetails()
         {
-            
+
             var result = await mediator.Send(new GetAllUsersDetailsQuery());
             return Ok(result);
         }

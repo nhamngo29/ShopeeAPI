@@ -1,23 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using Shopee.API;
 using Shopee.API.Extensions;
 using Shopee.API.Middleware;
 using Shopee.Application.Common;
 using Shopee.Application.Common.Exceptions;
-using Shopee.Application.Common.Interfaces;
-using Shopee.Infrastructure.Services;
-using System.Net.Http.Headers;
 using System.Text;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration.Get<SettingConfiguration>()
     ?? throw ProgramException.AppsettingNotSetException();
 
-
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddSingleton(configuration);
 builder.Services.AddWebAPIService(configuration);
 // For authentication
@@ -82,12 +79,12 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 app.ConfigureHealthCheck();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.ConfigureExceptionHandler();
+//app.ConfigureExceptionHandler();
 app.Use(async (context, next) =>
 {
     try
     {
-        
+
         await next.Invoke();
     }
     catch (UnauthorizedAccessException)
@@ -108,6 +105,7 @@ if (app.Environment.IsDevelopment())
     });
 
 }
+app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");

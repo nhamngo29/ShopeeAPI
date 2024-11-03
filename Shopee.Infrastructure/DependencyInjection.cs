@@ -7,8 +7,6 @@ using Shopee.Domain.Entities;
 using Shopee.Domain.Repositories.Command.Base;
 using Shopee.Domain.Repositories.Query.Base;
 using Shopee.Infrastructure.Data;
-using Shopee.Infrastructure.Repository.Command.Base;
-using Shopee.Infrastructure.Repository.Query.Base;
 using Shopee.Infrastructure.Services;
 
 namespace Shopee.Infrastructure
@@ -36,8 +34,7 @@ namespace Shopee.Infrastructure
             });
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddScoped(typeof(IQueryRepository<>), typeof(QueryRepository<>));
-            services.AddScoped(typeof(ICommandRepository<>), typeof(CommandRepository<>));
+            services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
             return services;
         }
     }

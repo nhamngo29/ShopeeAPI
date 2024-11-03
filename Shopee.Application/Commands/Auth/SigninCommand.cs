@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Shopee.Application.Common.Exceptions;
-using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
 
 namespace Shopee.Application.Commands.Auth
@@ -11,9 +10,8 @@ namespace Shopee.Application.Commands.Auth
         public string Password { get; set; }
     }
 
-    public class SignInCommandHandler(ITokenService tokenService,IIdentityService identityService,ICookieService cookieService) : IRequestHandler<SignInCommand, ApiReponse<AuthResponseDTO>>
+    public class SignInCommandHandler(ITokenService tokenService, IIdentityService identityService, ICookieService cookieService) : IRequestHandler<SignInCommand, ApiReponse<AuthResponseDTO>>
     {
-
         public async Task<ApiReponse<AuthResponseDTO>> Handle(SignInCommand request, CancellationToken cancellationToken)
         {
             var result = await identityService.SigninUserAsync(request.UserName, request.Password);
@@ -38,7 +36,7 @@ namespace Shopee.Application.Commands.Auth
                 {
                     Roles = roleUsers,
                     RefreshToken = refreshToken,
-                    AccessToken=token
+                    AccessToken = token
                 }
             };
         }

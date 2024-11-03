@@ -1,4 +1,5 @@
 ﻿namespace Shopee.Application.Common;
+
 public class SettingConfiguration
 {
     public ApplicationDetail ApplicationDetail { get; set; }
@@ -28,7 +29,6 @@ public class Jwt
     public string Issuer { get; set; }
     public string Audience { get; set; }
     public int AccessTokenExpirationMinutes { get; set; }
-
 }
 
 public class MailConfigurations

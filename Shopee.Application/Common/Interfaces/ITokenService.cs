@@ -10,6 +10,7 @@ namespace Shopee.Application.Common.Interfaces
         ClaimsPrincipal? ValidateToken(string token);
 
         string GenerateRefreshToken();
+
         //string GenerateRefreshToken();
     }
 }

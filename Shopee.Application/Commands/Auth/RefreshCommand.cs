@@ -4,6 +4,7 @@ using Shopee.Application.DTOs;
 using Shopee.Application.DTOs.Auth;
 
 namespace Shopee.Application.Commands.Auth;
+
 public class RefreshCommand : IRequest<ApiReponse<RefreshTokenResponseDTO>>
 {
     public string RefreshToken { get; set; }
@@ -13,7 +14,7 @@ public class RefreshCommandHandler(ITokenService tokenService, IIdentityService 
 {
     public async Task<ApiReponse<RefreshTokenResponseDTO>> Handle(RefreshCommand request, CancellationToken cancellationToken)
     {
-        var userId = cookieService.GetCurrentUserId();//lấy user id từ 
+        var userId = cookieService.GetCurrentUserId();//lấy user id từ
         var user = await identityService.GetRefreshTokenByIdUser(userId);
         if (user == null || user.RefreshToken == null || user.RefreshTokenExpiry <= DateTime.Now || !user.RefreshToken.Equals(request.RefreshToken))//Kiểm tra refresh token có hợp lệ hay không
             throw UserException.UserUnauthorizedException();

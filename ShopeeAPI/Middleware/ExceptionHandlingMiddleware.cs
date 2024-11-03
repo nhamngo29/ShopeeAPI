@@ -7,10 +7,12 @@ namespace Shopee.API.Middleware
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next)
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -62,9 +64,7 @@ namespace Shopee.API.Middleware
 
             var errorResponse = new
             {
-                isSuccess = false,
                 message = "Đã xảy ra lỗi trong quá trình xử lý yêu cầu",
-                statusCode = 422,
                 response = exception.Errors
             };
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
@@ -77,11 +77,10 @@ namespace Shopee.API.Middleware
 
             var errorResponse = new
             {
-                isSuccess = false,
-                Message = "An unexpected error occurred.",
-                statusCode = 422,
+                Message = "Lỗi hệ thống",
             };
-
+           
+            _logger.LogError(exception,$"{exception.Message} metho {_next.Method.Name}",new{statucCode=HttpStatusCode.InternalServerError });
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
 

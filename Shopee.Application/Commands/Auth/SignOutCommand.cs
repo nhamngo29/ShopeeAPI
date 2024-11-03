@@ -1,11 +1,5 @@
 ﻿using MediatR;
-using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Application.Commands.Auth
 {
@@ -13,11 +7,11 @@ namespace Shopee.Application.Commands.Auth
     {
     }
 
-    public class SignOutCommandHandler(IIdentityService identityService, ICurrentUser currentUser,ICookieService cookieService) : IRequestHandler<SignOutCommand, ApiReponse<string>>
+    public class SignOutCommandHandler(IIdentityService identityService, ICurrentUser currentUser, ICookieService cookieService) : IRequestHandler<SignOutCommand, ApiReponse<string>>
     {
-        public async Task<ApiReponse<string>> Handle(SignOutCommand request,CancellationToken cancellationToken)
+        public async Task<ApiReponse<string>> Handle(SignOutCommand request, CancellationToken cancellationToken)
         {
-            var userId = currentUser.GetCurrentUserId();//lấy user id từ 
+            var userId = currentUser.GetCurrentUserId();//lấy user id từ
             var user = await identityService.GetRefreshTokenByIdUser(userId);
             user.RefreshToken = null;
             await identityService.SaveRefreshTokenUser(user);//save refresh token

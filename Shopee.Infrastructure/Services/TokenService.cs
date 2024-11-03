@@ -2,7 +2,6 @@
 using Microsoft.IdentityModel.Tokens;
 using Shopee.Application.Common;
 using Shopee.Application.Common.Interfaces;
-using Shopee.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;

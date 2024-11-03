@@ -1,5 +1,4 @@
 ﻿using Shopee.Application;
-using Shopee.Application.Common.Interfaces;
 using Shopee.Infrastructure;
 
 namespace Shopee.API

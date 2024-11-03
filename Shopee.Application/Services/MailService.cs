@@ -4,7 +4,7 @@ using System.Net.Mail;
 
 namespace Shopee.Application.Services;
 
-internal class MailService(SettingConfiguration appSettings): IMailService
+internal class MailService(SettingConfiguration appSettings) : IMailService
 {
     private readonly MailConfigurations _mailSettings = appSettings.MailConfigurations;
 

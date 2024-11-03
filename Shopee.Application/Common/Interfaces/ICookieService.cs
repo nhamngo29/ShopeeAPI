@@ -1,8 +1,10 @@
 ﻿namespace Shopee.Application.Common.Interfaces;
+
 public interface ICookieService
 {
     void Set(string token);
-    void Delete();
-    string Get();
 
+    void Delete();
+
+    string Get();
 }

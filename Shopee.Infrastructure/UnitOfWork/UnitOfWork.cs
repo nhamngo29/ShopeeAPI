@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
+using Shopee.Application.Common.Interfaces.Repository;
 using Shopee.Infrastructure.Data;
+using Shopee.Infrastructure.Repository;
 
 namespace Shopee.Infrastructure.UnitOfWork
 {
@@ -9,15 +12,25 @@ namespace Shopee.Infrastructure.UnitOfWork
     {
         private IDbContextTransaction? _transaction;
         private bool _disposed;
-
         private readonly ApplicationDbContext _context;
+        #region Repositories
+        private Lazy<IProductRepository> _products;
+        public IProductRepository Products => _products.Value;
 
-        // repositories
+        private Lazy<ICategoryRepository> _categories;
+        public ICategoryRepository Categories => _categories.Value;
+
+        private Lazy<IImageProductRepository> _imageProducts;
+        public IImageProductRepository ImageProducts => _imageProducts.Value;
+        #endregion
+
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
-            _context = dbContext;
-            // repositories
+            _context = (ApplicationDbContext)dbContext;
+            _products = new Lazy<IProductRepository>(() => new ProductRepository(_context));
+            _categories = new Lazy<ICategoryRepository>(() => new CategoryRepository(_context));
+            _imageProducts = new Lazy<IImageProductRepository>(() => new ImageProductRepository(_context));
         }
 
         // save changes

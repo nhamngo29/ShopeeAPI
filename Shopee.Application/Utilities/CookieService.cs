@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shopee.Application.Common.Exceptions;
 
-public class CookieService(IHttpContextAccessor httpContextAccessor): ICookieService
+public class CookieService(IHttpContextAccessor httpContextAccessor) : ICookieService
 {
     public void Set(string token)
     {

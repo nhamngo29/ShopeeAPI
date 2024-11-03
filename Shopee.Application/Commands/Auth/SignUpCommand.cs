@@ -34,16 +34,8 @@ namespace Shopee.Application.Commands.Auth
 
     public class SignUpCommandHandler(IIdentityService identityService, ITokenService tokenService) : IRequestHandler<SignUpCommand, ApiReponse<AuthResponseDTO>>
     {
-
-
         public async Task<ApiReponse<AuthResponseDTO>> Handle(SignUpCommand request, CancellationToken cancellationToken)
         {
-            var validator = new SignUpRequestValidator();
-            var validationResult = validator.Validate(request);
-            if (!validationResult.IsValid)
-            {
-                throw new Common.Exceptions.ValidationException(validationResult.Errors);
-            }
             if (!await identityService.IsUniqueUserName(request.UserName))
                 throw new Common.Exceptions.ConflictException(
                  new Dictionary<string, string[]>
@@ -64,7 +56,6 @@ namespace Shopee.Application.Commands.Auth
             var (userId, fullName, userName, email, roles) = await identityService.GetUserDetailsAsync(await identityService.GetUserIdAsync(request.UserName));
 
             string token = tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
-
 
             return new ApiReponse<AuthResponseDTO>()
             {

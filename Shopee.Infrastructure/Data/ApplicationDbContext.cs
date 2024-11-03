@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Domain.Entities;
+using System.Reflection;
 
 namespace Shopee.Infrastructure.Data;
 
@@ -22,6 +23,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         builder.Entity<IdentityUserToken<string>>().ToTable("UserToken");
         builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin");
         builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaim");
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedRoles(builder);
     }
 

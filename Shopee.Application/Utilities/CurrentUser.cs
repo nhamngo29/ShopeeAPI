@@ -1,7 +1,6 @@
 ﻿using Shopee.Application.Common.Exceptions;
-using Shopee.Application.Common.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+
 public class CurrentUser(ITokenService tokenService, ICookieService cookieService) : ICurrentUser
 {
     public string GetCurrentUserId()

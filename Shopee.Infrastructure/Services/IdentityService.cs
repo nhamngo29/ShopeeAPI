@@ -251,7 +251,7 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<bool> SaveRefreshTokenUser(ApplicationUser user)
         {
-            user.RefreshTokenExpiry=DateTime.Now.AddDays(7);
+            user.RefreshTokenExpiry = DateTime.Now.AddDays(7);
             var result = await userManager.UpdateAsync(user);
             return result.Succeeded;
         }

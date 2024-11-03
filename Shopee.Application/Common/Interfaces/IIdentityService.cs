@@ -5,6 +5,7 @@ namespace Shopee.Application.Common.Interfaces
     public interface IIdentityService
     {
         Task<ApplicationUser> GetRefreshTokenByIdUser(string id);
+
         // User section
         Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles);
 
@@ -47,7 +48,7 @@ namespace Shopee.Application.Common.Interfaces
         Task<bool> AssignUserToRole(string userName, IList<string> roles);
 
         Task<bool> UpdateUsersRole(string userName, IList<string> usersRole);
-        Task<bool> SaveRefreshTokenUser(ApplicationUser user);
 
+        Task<bool> SaveRefreshTokenUser(ApplicationUser user);
     }
 }

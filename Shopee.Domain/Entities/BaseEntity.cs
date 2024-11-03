@@ -1,21 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shopee.Domain.Entities
 {
     public class BaseEntity
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
-
-        public DateTime CreatedDate { get; set; }
-
-        public DateTime ModifiedDate { get; private set; }
-
-        public BaseEntity()
-        {
-            ModifiedDate = DateTime.Now;
-        }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public DateTime CreateAt { get; set; } = DateTime.Now;
+        public DateTime UpdateAt { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public Guid? UpdateBy { get; set; }
     }
 }
