@@ -8,6 +8,7 @@ public class ShopeeMapper : Profile
 {
     public ShopeeMapper()
     {
+        CreateMap<Pagination<Product>, Pagination<ProductResponseDTO>>().ReverseMap();
         CreateMap<Product, ProductResponseDTO>().ReverseMap();
     }
 }

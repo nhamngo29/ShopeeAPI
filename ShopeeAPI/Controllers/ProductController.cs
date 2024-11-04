@@ -10,10 +10,10 @@ namespace Shopee.API.Controllers
     [ApiController]
     public class ProductController(IMediator mediator) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet( "products")]
         public async Task<IActionResult> GetAllProduct([FromQuery] GetAllProductQuery command)
         {
-            var result = await mediator.Send(new GetAllProductQuery() { PageIndex = 1, PageSize = 20 });
+            var result = await mediator.Send(command);
             return Ok(result);
         }
     }
