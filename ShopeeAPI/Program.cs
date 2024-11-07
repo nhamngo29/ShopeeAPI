@@ -94,17 +94,15 @@ app.Use(async (context, next) =>
     }
 });
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(option =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(option =>
-    {
-        option.InjectStylesheet("/swagger-ui/custom.css");
-        option.SwaggerEndpoint("/swagger/OpenAPISpecification/swagger.json", "Clean Architecture Specification");
-        option.RoutePrefix = "swagger";
-    });
+    option.InjectStylesheet("/swagger-ui/custom.css");
+    option.SwaggerEndpoint("/swagger/OpenAPISpecification/swagger.json", "Clean Architecture Specification");
+    option.RoutePrefix = "swagger";
+});
 
-}
+
 app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseHttpsRedirection();

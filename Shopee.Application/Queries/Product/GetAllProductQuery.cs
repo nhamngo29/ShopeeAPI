@@ -13,6 +13,7 @@ namespace Shopee.Application.Queries.Product
         public int? Page { get; set; } = 1;
         public int? PageSize { get; set; } = 20;
         public string? OrderBy { get; set; }
+        public bool Order { get; set; }
     }
 
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQuery, ApiReponse<Pagination<ProductResponseDTO>>>
@@ -35,7 +36,7 @@ namespace Shopee.Application.Queries.Product
                 null, // No filter
                 query => query.Include(p => p.Cateogry), // Include related Category entity
                 orderByExpression, // Order by Name property
-                true // Ascending order
+                request.Order // Ascending order
             );
             var result = _mapper.Map<Pagination<ProductResponseDTO>>(products);
             return new ApiReponse<Pagination<ProductResponseDTO>>()
