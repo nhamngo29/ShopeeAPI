@@ -1,6 +1,8 @@
-﻿namespace Shopee.Application.Common.Interfaces.Repository
+﻿using Shopee.Domain.Entities;
+
+namespace Shopee.Application.Common.Interfaces.Repository
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository:IGenericRepository<Category>
     {
     }
 }

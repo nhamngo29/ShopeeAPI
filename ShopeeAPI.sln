@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shopee.Framework", "Shopee.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopee.Framework", "Shopee.Framework\Shopee.Framework.csproj", "{B83E8684-68A4-4776-88A1-AE371AC8657A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopee.UnitTest", "Shopee.UnitTest\Shopee.UnitTest.csproj", "{FA550429-ED9A-41CA-A2E8-5CA204871103}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopee.UnitTest", "Shopee.UnitTest\Shopee.UnitTest.csproj", "{FA550429-ED9A-41CA-A2E8-5CA204871103}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

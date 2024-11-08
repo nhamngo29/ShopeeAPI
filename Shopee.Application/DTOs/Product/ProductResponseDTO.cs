@@ -1,5 +1,4 @@
 ﻿using Shopee.Domain.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shopee.Application.DTOs.Product
 {
@@ -14,6 +13,6 @@ namespace Shopee.Application.DTOs.Product
         public string Name { get; set; } = null!;
         public string? Image { get; set; }
         public List<ImageProduct>? Images { get; set; }
-        public Category? Cateogry { get; set; }
+        public string? CateogryId { get; set; }
     }
 }

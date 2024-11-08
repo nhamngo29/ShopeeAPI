@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Shopee.Application.DTOs.Category;
 using Shopee.Application.DTOs.Product;
 using Shopee.Domain.Entities;
 
@@ -10,5 +11,6 @@ public class ShopeeMapper : Profile
     {
         CreateMap<Pagination<Product>, Pagination<ProductResponseDTO>>().ReverseMap();
         CreateMap<Product, ProductResponseDTO>().ReverseMap();
+        CreateMap<Category, CategoryResponseDTO>().ReverseMap();
     }
 }

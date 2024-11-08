@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Application.Common.Models;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Shopee.Infrastructure.Repository
@@ -40,7 +41,7 @@ namespace Shopee.Infrastructure.Repository
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IQueryable<T>>? include = null,
             Expression<Func<T, object>>? orderBy = null,
-            bool ascending = true)
+            string? ascending=null)
         {
             IQueryable<T> query = _dbSet.AsNoTracking();
 
@@ -56,7 +57,7 @@ namespace Shopee.Infrastructure.Repository
 
             orderBy ??= x => EF.Property<object>(x, "Id");
 
-            query = ascending ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
+            query = ascending=="asc" ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
 
             var result = await Pagination<T>.ToPagedList(query, pageIndex, pageSize);
 
@@ -97,6 +98,16 @@ namespace Shopee.Infrastructure.Repository
         {
             T entity = await GetByIdAsync(id);
             Delete(entity);
+        }
+
+        public async Task<IEnumerable<T>> GetAll(Func<IQueryable<T>, IQueryable<T>>? include = null)
+        {
+            IQueryable<T> query = _dbSet;
+            if (include != null)
+            {
+                query = include(query);
+            }
+            return await query.ToListAsync();
         }
 
         #endregion Update & delete

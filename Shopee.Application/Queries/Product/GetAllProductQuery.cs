@@ -13,7 +13,8 @@ namespace Shopee.Application.Queries.Product
         public int? Page { get; set; } = 1;
         public int? PageSize { get; set; } = 20;
         public string? OrderBy { get; set; }
-        public bool Order { get; set; }
+        public string? Order { get; set; } = null;
+        public string? CategoryId { get; set; }
     }
 
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQuery, ApiReponse<Pagination<ProductResponseDTO>>>
@@ -33,7 +34,9 @@ namespace Shopee.Application.Queries.Product
             var products = await _unitOfWork.Products.ToPagination(
                 request.Page.GetValueOrDefault(1), // Nếu PageIndex là null, sử dụng giá trị mặc định là 1
                 request.PageSize.GetValueOrDefault(20),
-                null, // No filter
+                string.IsNullOrEmpty(request.CategoryId)
+                    ? null
+                    : t => t.IdCateogry.ToString() == request.CategoryId, // Lọc theo CategoryId
                 query => query.Include(p => p.Cateogry), // Include related Category entity
                 orderByExpression, // Order by Name property
                 request.Order // Ascending order

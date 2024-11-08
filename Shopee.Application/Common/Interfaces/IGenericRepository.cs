@@ -25,7 +25,7 @@ public interface IGenericRepository<T> where T : class
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IQueryable<T>>? include = null,
         Expression<Func<T, object>>? orderBy = null,
-        bool ascending = true);
+        string? ascending = null);
 
     Task<T?> FirstOrDefaultAsync(
         Expression<Func<T, bool>> filter,
@@ -40,4 +40,6 @@ public interface IGenericRepository<T> where T : class
     void DeleteRange(IEnumerable<T> entities);
 
     Task Delete(object id);
+
+    Task<IEnumerable<T>> GetAll(Func<IQueryable<T>, IQueryable<T>>? include = null);
 }
