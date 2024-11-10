@@ -13,7 +13,7 @@ public static class ConfigureServices
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddSwaggerOpenAPI(appSettings);
-        services.SetupHealthCheck(appSettings);
+        //services.SetupHealthCheck(appSettings);
         return services;
     }
 

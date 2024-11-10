@@ -11,10 +11,12 @@ namespace Shopee.Application.Queries.Product
     public class GetAllProductQuery : IRequest<ApiReponse<Pagination<ProductResponseDTO>>>
     {
         public int? Page { get; set; } = 1;
-        public int? PageSize { get; set; } = 20;
         public string? OrderBy { get; set; }
         public string? Order { get; set; } = null;
         public string? CategoryId { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public decimal? MinPrice { get; set; }
+        public int? RatingFilter { get; set; }
     }
 
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQuery, ApiReponse<Pagination<ProductResponseDTO>>>
@@ -33,10 +35,12 @@ namespace Shopee.Application.Queries.Product
             var orderByExpression = Utility.GetPropertyByString<Domain.Entities.Product>(request.OrderBy);
             var products = await _unitOfWork.Products.ToPagination(
                 request.Page.GetValueOrDefault(1), // Nếu PageIndex là null, sử dụng giá trị mặc định là 1
-                request.PageSize.GetValueOrDefault(20),
-                string.IsNullOrEmpty(request.CategoryId)
-                    ? null
-                    : t => t.IdCateogry.ToString() == request.CategoryId, // Lọc theo CategoryId
+                PaginationConstants.PAGE_SIZE_PRODUCT, //page size
+                t =>
+                    (string.IsNullOrEmpty(request.CategoryId) || t.IdCateogry.ToString() == request.CategoryId) &&
+                    (!request.MinPrice.HasValue || t.Price >= request.MinPrice.Value) &&
+                    (!request.MaxPrice.HasValue || t.Price <= request.MaxPrice.Value) &&
+                (!request.RatingFilter.HasValue || t.Rating >= request.RatingFilter.Value),
                 query => query.Include(p => p.Cateogry), // Include related Category entity
                 orderByExpression, // Order by Name property
                 request.Order // Ascending order

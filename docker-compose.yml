@@ -1,0 +1,35 @@
+﻿version: '3.8'
+
+services:
+  shopee.api:
+    build:
+      context: .
+      dockerfile: ShopeeAPI/Dockerfile  # Đảm bảo đường dẫn đúng tới Dockerfile trong thư mục ShopeeAPI
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - productnetwork
+    restart: on-failure
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "<YourStrong@Passw0rd>"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+    networks:
+      - productnetwork
+
+networks:
+  productnetwork:
+
+volumes:
+  sqlvolume:

@@ -67,7 +67,7 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder
-                .WithOrigins("http://localhost:3000", "https://localhost:3000") // Địa chỉ client
+                .WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:8080", "https://localhost:8080", "http://localhost:8081","https://localhost:8081") // Địa chỉ client
                 .AllowAnyMethod()
                 .AllowAnyHeader() // Cho phép bất kỳ header nào
                 .AllowCredentials(); // Cho phép gửi cookie
@@ -77,7 +77,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.ConfigureHealthCheck();
+//app.ConfigureHealthCheck();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 //app.ConfigureExceptionHandler();
 app.Use(async (context, next) =>
