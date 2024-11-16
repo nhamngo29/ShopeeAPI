@@ -1,35 +1,40 @@
 ﻿version: '3.8'
 
 services:
-  shopee.api:
-    build:
-      context: .
-      dockerfile: ShopeeAPI/Dockerfile  # Đảm bảo đường dẫn đúng tới Dockerfile trong thư mục ShopeeAPI
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-    depends_on:
-      - sqlserver
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    networks:
-      - productnetwork
-    restart: on-failure
-
   sqlserver:
+    container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "<YourStrong@Passw0rd>"
+      MSSQL_SA_PASSWORD: "1236fG543$"
+      MSSQL_DATABASE: "shopeeclone"
       ACCEPT_EULA: "Y"
     ports:
-      - "1433:1433"
+      - "1434:1433"
     volumes:
-      - sqlvolume:/var/opt/mssql
+      - sql_data:/var/opt/mssql
+    restart: always
     networks:
-      - productnetwork
+    - shopee
 
-networks:
-  productnetwork:
-
+  shopee-api:
+    container_name: shopee-api
+    build:
+      context: .
+      dockerfile: ./ShopeeAPI/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "DatabaseSettings:DefaultConnection=Server=sqlserver;Database=ShopeeClone;User Id=sa;Password=1236fG543$;TrustServerCertificate=true;Encrypt=false"
+    ports:
+      - "8080:80"
+    depends_on:
+      - sqlserver
+    restart: always
+    networks:
+    - shopee
 volumes:
-  sqlvolume:
+  sql_data:
+    name: sql_data
+networks:
+  shopee:
+    driver: bridge 

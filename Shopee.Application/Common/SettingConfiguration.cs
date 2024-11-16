@@ -9,6 +9,7 @@ public class SettingConfiguration
     public MailConfigurations MailConfigurations { get; set; }
     public bool UseInMemoryDatabase { get; set; }
     public string[] Cors { get; set; }
+    public RedisConfiguration RedisConfiguration { get; set; }
 }
 
 public class ApplicationDetail
@@ -47,4 +48,11 @@ public class Logging
 public class RequestResponse
 {
     public bool IsEnabled { get; set; }
+}
+public class RedisConfiguration
+{
+    public bool Enabled { get; set; }
+    public string ConnectionString { get; set; }
+    public string Password { get; set; }
+    public int ConnectTimeOut { get; set; }
 }

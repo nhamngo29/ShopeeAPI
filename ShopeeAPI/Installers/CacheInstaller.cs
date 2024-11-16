@@ -1,5 +1,5 @@
-﻿using Shopee.Application.Common.Interfaces;
-using Shopee.Domain.Configuration;
+﻿using Shopee.Application.Common;
+using Shopee.Application.Common.Interfaces;
 using Shopee.Infrastructure.Services;
 using StackExchange.Redis;
 
@@ -9,9 +9,9 @@ namespace Shopee.API.Installers
     {
         public void InstrallServices(IServiceCollection services, IConfiguration configuration)
         {
-            var redisConfiguration = new RedisConfiguration();
-            configuration.GetSection("RedisConfiguration").Bind(redisConfiguration);
-            services.AddSingleton(redisConfiguration);
+            var redisConfiguration = configuration.Get<SettingConfiguration>().RedisConfiguration;
+            if(!redisConfiguration.Enabled)
+                return;
             ConfigurationOptions option = new ConfigurationOptions
             {
                 AbortOnConnectFail = false,
@@ -20,6 +20,7 @@ namespace Shopee.API.Installers
                 EndPoints = { redisConfiguration.ConnectionString },
                 Password = redisConfiguration.Password
             };
+            services.AddMemoryCache();
             services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(option));
             services.AddStackExchangeRedisCache(option => { option.Configuration = redisConfiguration.ConnectionString; });
             services.AddSingleton<ICacheService, CacheService>();

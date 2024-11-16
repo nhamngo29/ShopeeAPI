@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shopee.Application.Common.Constants;
 
-public static class PaginationConstants
+public static class Constants
 {
     public static int PAGE_SIZE_PRODUCT = 20;
 }

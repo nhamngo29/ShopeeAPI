@@ -2,12 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shopee.Application.Common;
+using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Domain.Entities;
 using Shopee.Domain.Repositories.Command.Base;
 using Shopee.Domain.Repositories.Query.Base;
 using Shopee.Infrastructure.Data;
 using Shopee.Infrastructure.Services;
+using StackExchange.Redis;
 
 namespace Shopee.Infrastructure
 {

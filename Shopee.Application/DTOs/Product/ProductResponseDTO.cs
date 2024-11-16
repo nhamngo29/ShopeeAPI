@@ -1,4 +1,5 @@
 ﻿using Shopee.Domain.Entities;
+using System.Text.Json.Serialization;
 
 namespace Shopee.Application.DTOs.Product
 {
@@ -12,7 +13,7 @@ namespace Shopee.Application.DTOs.Product
         public int? View { get; set; }
         public string Name { get; set; } = null!;
         public string? Image { get; set; }
-        public List<ImageProduct>? Images { get; set; }
+        public IList<string>? Images { get; set; }
         public string? CateogryId { get; set; }
     }
 }

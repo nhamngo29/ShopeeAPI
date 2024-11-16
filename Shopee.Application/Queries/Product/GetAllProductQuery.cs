@@ -17,6 +17,7 @@ namespace Shopee.Application.Queries.Product
         public decimal? MaxPrice { get; set; }
         public decimal? MinPrice { get; set; }
         public int? RatingFilter { get; set; }
+        public string? Keyword { get; set; }
     }
 
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQuery, ApiReponse<Pagination<ProductResponseDTO>>>
@@ -35,12 +36,13 @@ namespace Shopee.Application.Queries.Product
             var orderByExpression = Utility.GetPropertyByString<Domain.Entities.Product>(request.OrderBy);
             var products = await _unitOfWork.Products.ToPagination(
                 request.Page.GetValueOrDefault(1), // Nếu PageIndex là null, sử dụng giá trị mặc định là 1
-                PaginationConstants.PAGE_SIZE_PRODUCT, //page size
+                Constants.PAGE_SIZE_PRODUCT, //page size
                 t =>
                     (string.IsNullOrEmpty(request.CategoryId) || t.IdCateogry.ToString() == request.CategoryId) &&
                     (!request.MinPrice.HasValue || t.Price >= request.MinPrice.Value) &&
                     (!request.MaxPrice.HasValue || t.Price <= request.MaxPrice.Value) &&
-                (!request.RatingFilter.HasValue || t.Rating >= request.RatingFilter.Value),
+                    (!request.RatingFilter.HasValue || t.Rating >= request.RatingFilter.Value) &&
+                    (string.IsNullOrEmpty(request.Keyword) || t.Name.Contains(request.Keyword)), // Tìm kiếm LIKE theo từ khóa,
                 query => query.Include(p => p.Cateogry), // Include related Category entity
                 orderByExpression, // Order by Name property
                 request.Order // Ascending order

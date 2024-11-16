@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Shopee.Application.Common;
 using Shopee.Application.Common.Interfaces;
-using Shopee.Domain.Configuration;
 using StackExchange.Redis;
 
 namespace Shopee.Infrastructure.Services
@@ -13,15 +13,15 @@ namespace Shopee.Infrastructure.Services
         private readonly IDistributedCache _distributedCache;
         private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly IMemoryCache _memoryCache;
-        private readonly RedisConfiguration _redisConfiguration;
+        private readonly SettingConfiguration _appSettings;
         private readonly List<object> _cacheKeys;
 
-        public CacheService(IDistributedCache distributedCache, IConnectionMultiplexer connectionMultiplexer, IMemoryCache memoryCache, RedisConfiguration redisConfiguration)
+        public CacheService(IDistributedCache distributedCache, IConnectionMultiplexer connectionMultiplexer, IMemoryCache memoryCache, SettingConfiguration appSettings)
         {
             _distributedCache = distributedCache;
             _connectionMultiplexer = connectionMultiplexer;
             _memoryCache = memoryCache;
-            _redisConfiguration = redisConfiguration;
+            _appSettings = appSettings;
             _cacheKeys = new List<object>();
         }
 
@@ -54,7 +54,7 @@ namespace Shopee.Infrastructure.Services
 
         private bool IsRedisEnabled()
         {
-            return _redisConfiguration.Enabled && _connectionMultiplexer.IsConnected;
+            return _appSettings.RedisConfiguration.Enabled && _connectionMultiplexer.IsConnected;
         }
 
         private async IAsyncEnumerable<string> GetKeyAsync(string pattern)
@@ -117,7 +117,7 @@ namespace Shopee.Infrastructure.Services
             {
                 if (string.IsNullOrWhiteSpace(pattern))
                     throw new ArgumentNullException("value cannot be null or white space");
-                if (_redisConfiguration.Enabled && _connectionMultiplexer.IsConnected)
+                if (_appSettings.RedisConfiguration.Enabled && _connectionMultiplexer.IsConnected)
                 {
                     await foreach (var key in GetKeyAsync(pattern + "*"))
                     {
