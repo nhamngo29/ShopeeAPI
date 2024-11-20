@@ -12,7 +12,7 @@ namespace Shopee.Application.Commands.Auth
         public async Task<ApiReponse<string>> Handle(SignOutCommand request, CancellationToken cancellationToken)
         {
             var userId = currentUser.GetCurrentUserId();//lấy user id từ
-            var user = await identityService.GetRefreshTokenByIdUser(userId);
+            var user = await identityService.GetRefreshTokenByIdUser(userId.ToString());
             user.RefreshToken = null;
             await identityService.SaveRefreshTokenUser(user);//save refresh token
             cookieService.Delete();

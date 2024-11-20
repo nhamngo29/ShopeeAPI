@@ -21,6 +21,7 @@ namespace Shopee.API.Installers
                 Password = redisConfiguration.Password
             };
             services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
             services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(option));
             services.AddStackExchangeRedisCache(option => { option.Configuration = redisConfiguration.ConnectionString; });
             services.AddSingleton<ICacheService, CacheService>();

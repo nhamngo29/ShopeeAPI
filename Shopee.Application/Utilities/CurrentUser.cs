@@ -3,19 +3,28 @@ using System.IdentityModel.Tokens.Jwt;
 
 public class CurrentUser(ITokenService tokenService, ICookieService cookieService) : ICurrentUser
 {
-    public string GetCurrentUserId()
+    public Guid GetCurrentUserId()
     {
         try
         {
             var jwtCookie = cookieService.Get();
-            var token = tokenService.ValidateToken(jwtCookie);
-            var userId = token.Claims.First(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+            if (jwtCookie != null)
+            {
+                var token = tokenService.ValidateToken(jwtCookie);
+                var userIdClaim = token.Claims.First(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
 
-            return userId;
+                Guid.TryParse(userIdClaim, out var userId);
+                return userId;
+
+
+            }
+            else
+                return Guid.Empty;
         }
         catch (Exception)
         {
             throw UserException.UserUnauthorizedException();
         }
     }
+
 }

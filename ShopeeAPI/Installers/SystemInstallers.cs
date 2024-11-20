@@ -4,6 +4,12 @@
     {
         public void InstrallServices(IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSession(options =>
+            {
+                // Set a short timeout for easy testing.
+                options.IdleTimeout = TimeSpan.FromDays(10);
+                options.Cookie.HttpOnly = true;
+            });
             services.AddEndpointsApiExplorer();
             services.AddCors(options =>
             {

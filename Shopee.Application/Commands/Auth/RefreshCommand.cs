@@ -15,7 +15,7 @@ public class RefreshCommandHandler(ITokenService tokenService, IIdentityService 
     public async Task<ApiReponse<RefreshTokenResponseDTO>> Handle(RefreshCommand request, CancellationToken cancellationToken)
     {
         var userId = cookieService.GetCurrentUserId();//lấy user id từ
-        var user = await identityService.GetRefreshTokenByIdUser(userId);
+        var user = await identityService.GetRefreshTokenByIdUser(userId.ToString());
         if (user == null || user.RefreshToken == null || user.RefreshTokenExpiry <= DateTime.Now || !user.RefreshToken.Equals(request.RefreshToken))//Kiểm tra refresh token có hợp lệ hay không
             throw UserException.UserUnauthorizedException();
         var roleUsers = await identityService.GetUserRolesAsync(user.Id);//get role user

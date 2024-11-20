@@ -7,6 +7,8 @@ public interface IUnitOfWork
     ICategoryRepository Categories { get; }
     IImageProductRepository ImageProducts { get; }
     IProductRepository Products { get; }
+    ICartRepository Cart { get; }
+    ICartItemRepository CartItem { get; }
 
     /// <summary>
     /// Saves changes to the database. This is called when the user changes the data or saves a new version of the data.

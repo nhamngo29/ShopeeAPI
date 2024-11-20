@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Shopee.Application.DTOs.Cart;
 using Shopee.Application.DTOs.Category;
 using Shopee.Application.DTOs.Product;
 using Shopee.Domain.Entities;
@@ -14,5 +15,7 @@ public class ShopeeMapper : Profile
             .ForMember(dest => dest.CateogryId, opt => opt.MapFrom(src => src.IdCateogry.ToString()))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(img => img.Url).ToList())).ReverseMap();
         CreateMap<Category, CategoryResponseDTO>().ReverseMap();
+        CreateMap<Product, CartItemProductDTO>()
+    .ReverseMap(); // Để ánh xạ ngược nếu cần
     }
 }

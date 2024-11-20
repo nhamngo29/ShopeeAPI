@@ -1,40 +1,6 @@
-﻿version: '3.8'
-
 services:
-  sqlserver:
-    container_name: sqlserver
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      MSSQL_SA_PASSWORD: "1236fG543$"
-      MSSQL_DATABASE: "shopeeclone"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "1434:1433"
-    volumes:
-      - sql_data:/var/opt/mssql
-    restart: always
-    networks:
-    - shopee
-
-  shopee-api:
-    container_name: shopee-api
+  shopee.api:
+    image: ${DOCKER_REGISTRY-}shopeeapi
     build:
       context: .
-      dockerfile: ./ShopeeAPI/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - "DatabaseSettings:DefaultConnection=Server=sqlserver;Database=ShopeeClone;User Id=sa;Password=1236fG543$;TrustServerCertificate=true;Encrypt=false"
-    ports:
-      - "8080:80"
-    depends_on:
-      - sqlserver
-    restart: always
-    networks:
-    - shopee
-volumes:
-  sql_data:
-    name: sql_data
-networks:
-  shopee:
-    driver: bridge 
+      dockerfile: ShopeeAPI/Dockerfile

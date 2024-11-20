@@ -17,9 +17,8 @@ public class CookieService(IHttpContextAccessor httpContextAccessor) : ICookieSe
 
     public void Delete() => httpContextAccessor.HttpContext?.Response.Cookies.Delete("X-Access-Token");
 
-    public string Get()
+    public string? Get()
     {
-        var token = httpContextAccessor.HttpContext?.Request.Cookies["X-Access-Token"];
-        return string.IsNullOrEmpty(token) ? throw UserException.UserUnauthorizedException() : token;
+        return httpContextAccessor.HttpContext?.Request.Cookies["X-Access-Token"];
     }
 }

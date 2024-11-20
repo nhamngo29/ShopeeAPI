@@ -6,5 +6,5 @@ public interface ICookieService
 
     void Delete();
 
-    string Get();
+    string? Get();
 }

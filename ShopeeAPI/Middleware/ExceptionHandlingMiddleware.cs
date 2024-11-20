@@ -37,12 +37,28 @@ namespace Shopee.API.Middleware
             {
                 await HandleHttpStatusException(httpContext, ex);
             }
+            catch (NotFoundException ex)
+            {
+                await HandleNotFuoundExceptionAsync(httpContext, ex);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(httpContext, ex);
             }
         }
+        private Task HandleNotFuoundExceptionAsync(HttpContext context, NotFoundException exception)
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
+            var errorResponse = new
+            {
+                isSuccess = false,
+                message = exception.Message,
+                statusCode = 404,
+            };
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
+        }
         private Task HandleBadRequestExceptionAsync(HttpContext context, BadRequestException exception)
         {
             context.Response.ContentType = "application/json";

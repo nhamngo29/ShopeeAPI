@@ -14,5 +14,14 @@ namespace Shopee.Infrastructure.Repository
         {
             _db = (_db ?? (ApplicationDbContext)dbContext);
         }
+        public async Task<IList<Product>> GetProductsByIdsAsync(IList<string> productIds)
+        {
+            var productIdSet = new HashSet<string>(productIds); // Chuyển sang HashSet để tăng tốc độ tra cứu
+
+            return await _db.Products
+                .Where(p => productIdSet.Contains(p.Id.ToString()))
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

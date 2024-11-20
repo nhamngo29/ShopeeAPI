@@ -8,6 +8,7 @@ namespace Shopee.Application.Common.Constants;
 
 public static class Constants
 {
-    public static int PAGE_SIZE_PRODUCT = 20;
+    public const int PAGE_SIZE_PRODUCT = 20;
+    public const string CART_CACHE_KEY_PREFIX = "Cart_";
 }
 

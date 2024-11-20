@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Application.Common.Interfaces.Repository;
@@ -13,7 +12,9 @@ namespace Shopee.Infrastructure.UnitOfWork
         private IDbContextTransaction? _transaction;
         private bool _disposed;
         private readonly ApplicationDbContext _context;
+
         #region Repositories
+
         private Lazy<IProductRepository> _products;
         public IProductRepository Products => _products.Value;
 
@@ -22,8 +23,14 @@ namespace Shopee.Infrastructure.UnitOfWork
 
         private Lazy<IImageProductRepository> _imageProducts;
         public IImageProductRepository ImageProducts => _imageProducts.Value;
-        #endregion
 
+        private Lazy<ICartRepository> _cart;
+        public ICartRepository Cart => _cart.Value;
+
+        private Lazy<ICartItemRepository> _cartItem;
+        public ICartItemRepository CartItem => _cartItem.Value;
+
+        #endregion Repositories
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -31,6 +38,8 @@ namespace Shopee.Infrastructure.UnitOfWork
             _products = new Lazy<IProductRepository>(() => new ProductRepository(_context));
             _categories = new Lazy<ICategoryRepository>(() => new CategoryRepository(_context));
             _imageProducts = new Lazy<IImageProductRepository>(() => new ImageProductRepository(_context));
+            _cart = new Lazy<ICartRepository>(() => new CartRepository(_context));
+            _cartItem = new Lazy<ICartItemRepository>(() => new CartItemRepository(_context));
         }
 
         // save changes

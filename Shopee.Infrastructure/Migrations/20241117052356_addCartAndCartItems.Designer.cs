@@ -3,16 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Shopee.Infrastructure.Data;
 
 #nullable disable
 
 namespace Shopee.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241117052356_addCartAndCartItems")]
+    partial class addCartAndCartItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,14 +54,14 @@ namespace Shopee.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ddfd5c2d-062f-4098-ae91-d88a3f7e4b93",
+                            Id = "bbc5f3d8-ffa6-4996-9414-ec5fe65811d5",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "340799f5-4189-4672-a421-dbb72b69489e",
+                            Id = "6d72ba1d-a1f2-416b-a159-496106d84483",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
@@ -294,7 +298,7 @@ namespace Shopee.Infrastructure.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("Stock")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdateAt")
@@ -397,13 +401,13 @@ namespace Shopee.Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
                     b.Property<float?>("Rating")
                         .HasColumnType("real");
 
                     b.Property<int?>("Sold")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Stock")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdateAt")
