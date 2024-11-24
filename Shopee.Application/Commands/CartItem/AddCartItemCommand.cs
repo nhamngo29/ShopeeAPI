@@ -10,13 +10,13 @@ using Shopee.Domain.Entities;
 
 namespace Shopee.Application.Commands.CartItem
 {
-    public class AddToCartCommand : IRequest<ApiReponse<CartItemProductDTO>>
+    public class AddCartItemCommand : IRequest<ApiReponse<CartItemProductDTO>>
     {
         public string ProductId { get; set; }
         public int Quantity { get; set; }
     }
 
-    public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, ApiReponse<CartItemProductDTO>>
+    public class AddCartItemCommandHandler : IRequestHandler<AddCartItemCommand, ApiReponse<CartItemProductDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUser _currentUser;
@@ -24,7 +24,7 @@ namespace Shopee.Application.Commands.CartItem
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
 
-        public AddToCartCommandHandler(
+        public AddCartItemCommandHandler(
             IUnitOfWork unitOfWork,
             IIdentityService identityService,
             ICurrentUser currentUser,
@@ -38,7 +38,7 @@ namespace Shopee.Application.Commands.CartItem
             _mapper = mapper;
         }
 
-        public async Task<ApiReponse<CartItemProductDTO>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
+        public async Task<ApiReponse<CartItemProductDTO>> Handle(AddCartItemCommand request, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(request.ProductId, out Guid pdid))
             {
@@ -77,7 +77,7 @@ namespace Shopee.Application.Commands.CartItem
 
         }
 
-        private async Task<Guid> AddOrUpdateCartItemInCacheAsync(string sessionId, AddToCartCommand command)
+        private async Task<Guid> AddOrUpdateCartItemInCacheAsync(string sessionId, AddCartItemCommand command)
         {
             var cacheKey = $"{Constants.CART_CACHE_KEY_PREFIX}{sessionId}";
             var cartItemsJson = await _cache.GetCacheReponseAync(cacheKey);

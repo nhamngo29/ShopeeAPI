@@ -13,7 +13,7 @@ namespace Shopee.API.Controllers
     public class CartController(IMediator mediator) : ControllerBase
     {
         [HttpPost("add-to-cart")]
-        public async Task<IActionResult> CartToCart(AddToCartCommand command)
+        public async Task<IActionResult> CartToCart(AddCartItemCommand command)
         {
             var result = await mediator.Send(command);
             return Ok(result);
@@ -22,6 +22,18 @@ namespace Shopee.API.Controllers
         public async Task<IActionResult> GetItemsInCart()
         {
             var result = await mediator.Send(new GetCartQuery());
+            return Ok(result);
+        }
+        [HttpDelete("delete-cart-item/{productId}")]
+        public async Task<IActionResult> RemoveCartItems([FromQuery] DeleteCartItemCommand command)
+        {
+            var result = await mediator.Send(command);
+            return Ok(result);
+        }
+        [HttpPost("update-cart-item")]
+        public async Task<IActionResult> UpdateCartImtes(UpdateCartItemCommand command)
+        {
+            var result = await mediator.Send(command);
             return Ok(result);
         }
     }
