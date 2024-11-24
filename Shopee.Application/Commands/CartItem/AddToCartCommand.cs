@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
@@ -9,41 +10,52 @@ using Shopee.Domain.Entities;
 
 namespace Shopee.Application.Commands.CartItem
 {
-    public class AddToCartCommand : IRequest<ApiReponse<AddToCartReponseDTO>>
+    public class AddToCartCommand : IRequest<ApiReponse<CartItemProductDTO>>
     {
         public string ProductId { get; set; }
         public int Quantity { get; set; }
     }
 
-    public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, ApiReponse<AddToCartReponseDTO>>
+    public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, ApiReponse<CartItemProductDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUser _currentUser;
         private readonly ICacheService _cache; // Redis cache
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
         public AddToCartCommandHandler(
             IUnitOfWork unitOfWork,
             IIdentityService identityService,
             ICurrentUser currentUser,
             ICacheService cache,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _currentUser = currentUser;
             _cache = cache;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
-        public async Task<ApiReponse<AddToCartReponseDTO>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
+        public async Task<ApiReponse<CartItemProductDTO>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
         {
+            if (!Guid.TryParse(request.ProductId, out Guid pdid))
+            {
+                throw new BadRequestException("Mã sản phẩm không hợp lệ.");
+            }
+            var product = await _unitOfWork.Products.FirstOrDefaultAsync(p => p.Id == pdid);
+            if (product is null)
+            {
+                throw new NotFoundException("Sản phẩm không tồn tại vui lòng thử lại");
+            }
             var userId = _currentUser.GetCurrentUserId();
-            AddToCartReponseDTO result=null;
+            Guid resultAdd = Guid.Empty;
             if (userId == Guid.Empty)
             {
                 // Người dùng chưa đăng nhập: Lưu vào Redis cache
                 var sessionId = Utility.GetSessionId(_httpContextAccessor);
-                result= await AddOrUpdateCartItemInCacheAsync(sessionId, request);
+                resultAdd = await AddOrUpdateCartItemInCacheAsync(sessionId, request);
             }
             else
             {
@@ -51,11 +63,13 @@ namespace Shopee.Application.Commands.CartItem
                 await _unitOfWork.ExecuteTransactionAsync(async () =>
                 {
                     var cart = await GetOrCreateCartAsync(userId);
-                    result= await AddOrUpdateCartItemAsync(cart.Id, request.ProductId, request.Quantity);
+                    resultAdd = await AddOrUpdateCartItemAsync(cart.Id, request.ProductId, request.Quantity);
                 }, cancellationToken);
             }
-
-            return new ApiReponse<AddToCartReponseDTO>
+            var result= _mapper.Map<CartItemProductDTO>(product);
+            result.Quantity=request.Quantity;
+            result.CartItemId = resultAdd.ToString();
+            return new ApiReponse<CartItemProductDTO>
             {
                 Message = "Thêm sản phẩm vào giỏ hàng thành công",
                 Response = result
@@ -63,7 +77,7 @@ namespace Shopee.Application.Commands.CartItem
 
         }
 
-        private async Task<AddToCartReponseDTO> AddOrUpdateCartItemInCacheAsync(string sessionId, AddToCartCommand command)
+        private async Task<Guid> AddOrUpdateCartItemInCacheAsync(string sessionId, AddToCartCommand command)
         {
             var cacheKey = $"{Constants.CART_CACHE_KEY_PREFIX}{sessionId}";
             var cartItemsJson = await _cache.GetCacheReponseAync(cacheKey);
@@ -77,6 +91,7 @@ namespace Shopee.Application.Commands.CartItem
             if (cartItem != null)
             {
                 cartItem.Quantity += command.Quantity;
+                cartItem.AddedToCartAt = DateTime.Now;
             }
             else
             {
@@ -84,12 +99,12 @@ namespace Shopee.Application.Commands.CartItem
                 {
                     ProductId = command.ProductId,
                     Quantity = command.Quantity,
-                    CartItemId = Guid.NewGuid().ToString()
+                    CartItemId = Guid.NewGuid()
                 };
                 cartItems.Add(cartItem);
             }
             await _cache.SetCacheReponseAync(cacheKey, cartItems, TimeSpan.FromHours(24));
-            return cartItem;
+            return cartItem.CartItemId;
         }
 
 
@@ -104,16 +119,11 @@ namespace Shopee.Application.Commands.CartItem
             return cart;
         }
 
-        private async Task<AddToCartReponseDTO> AddOrUpdateCartItemAsync(Guid cartId, string productId, int quantity)
+        private async Task<Guid> AddOrUpdateCartItemAsync(Guid cartId, string productId, int quantity)
         {
             if (!Guid.TryParse(productId, out Guid pdid))
             {
                 throw new BadRequestException("Mã sản phẩm không hợp lệ.");
-            }
-            var product = await _unitOfWork.Products.FirstOrDefaultAsync(p => p.Id == pdid);
-            if (product == null)
-            {
-                throw new NotFoundException($"Sản phẩm không tồn tại, vui lòng thử lại.");
             }
             var cartItem = await _unitOfWork.CartItem.FirstOrDefaultAsync(t => t.CartId == cartId && t.ProductId == pdid);
             if (cartItem == null)
@@ -132,13 +142,7 @@ namespace Shopee.Application.Commands.CartItem
                 _unitOfWork.CartItem.Update(cartItem);
             }
 
-            return new AddToCartReponseDTO()
-            {
-                CartItemId = cartItem.Id.ToString(),
-                Price = product.Price, //lấy giá hiện tại
-                ProductId = productId,
-                Quantity = cartItem.Quantity
-            };
+            return cartItem.Id;
         }
     }
 }

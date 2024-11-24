@@ -20,6 +20,7 @@ namespace Shopee.Infrastructure.Repository
 
             return await _db.Products
                 .Where(p => productIdSet.Contains(p.Id.ToString()))
+                .Include(t=>t.Cateogry)
                 .AsNoTracking()
                 .ToListAsync();
         }

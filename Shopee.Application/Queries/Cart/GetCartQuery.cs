@@ -67,7 +67,7 @@ namespace Shopee.Application.Queries.Cart
             {
                 return GetCartItemReponseDTO.Default;
             }
-            var productIds = cartItems.Select(x => x.Id.ToString()).Distinct().ToHashSet();
+            var productIds = cartItems.Select(x => x.ProductId.ToString()).Distinct().ToHashSet();
 
             if (!productIds.Any())
                 return GetCartItemReponseDTO.Default;
@@ -77,10 +77,11 @@ namespace Shopee.Application.Queries.Cart
             // Gán Quantity từ cartItems vào các sản phẩm đã ánh xạ
             foreach (var cartItem in cartItems)
             {
-                var product = mappedCartItems.FirstOrDefault(p => p.Id == cartItem.Id);
+                var product = mappedCartItems.FirstOrDefault(p => p.ProductId == cartItem.ProductId);
                 if (product != null)
                 {
                     product.Quantity = cartItem.Quantity;  // Gán Quantity từ cartItem vào product
+                    product.CartItemId = cartItem.CartItemId;
                 }
             }
             var totalQuantity = cartItems.Sum(x => x.Quantity);
@@ -88,7 +89,7 @@ namespace Shopee.Application.Queries.Cart
             {
                 TotalCartItem = cartItems.Count,
                 UniqueTotalCartItem = totalQuantity,
-                Products = mappedCartItems
+                Products = mappedCartItems.OrderByDescending(t => t.AddedToCartAt).ToList()
             };
         }
     }
