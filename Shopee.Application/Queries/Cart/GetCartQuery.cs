@@ -82,6 +82,7 @@ namespace Shopee.Application.Queries.Cart
                 {
                     product.Quantity = cartItem.Quantity;  // Gán Quantity từ cartItem vào product
                     product.CartItemId = cartItem.CartItemId;
+                    product.AddedToCartAt = cartItem.AddedToCartAt;
                 }
             }
             var totalQuantity = cartItems.Sum(x => x.Quantity);

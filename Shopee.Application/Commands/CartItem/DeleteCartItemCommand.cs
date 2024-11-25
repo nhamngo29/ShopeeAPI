@@ -10,12 +10,13 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Shopee.Application.Common.Exceptions;
 using Newtonsoft.Json;
+using Shopee.Domain.Entities;
 
 namespace Shopee.Application.Commands.CartItem
 {
     public class DeleteCartItemCommand : IRequest<ApiReponse<string>>
     {
-        public string ProductId { get; set; }
+        public string[] ProductsId { get; set; }
     }
     public class DeleteCartItemCommandHandler : IRequestHandler<DeleteCartItemCommand, ApiReponse<string>>
     {
@@ -36,38 +37,43 @@ namespace Shopee.Application.Commands.CartItem
 
         public async Task<ApiReponse<string>> Handle(DeleteCartItemCommand request, CancellationToken cancellationToken)
         {
-            if (!Guid.TryParse(request.ProductId, out Guid pdid))
+            foreach (var productId in request.ProductsId)
             {
-                throw new BadRequestException("Mã sản phẩm không hợp lệ.");
-            }
-            var product = await _unitOfWork.Products.FirstOrDefaultAsync(p => p.Id == pdid);
-            if (product is null)
-            {
-                throw new NotFoundException("Sản phẩm không tồn tại vui lòng thử lại");
-            }
-            var userId = _currentUser.GetCurrentUserId();
-            Guid resultAdd = Guid.Empty;
-            if (userId == Guid.Empty)
-            {
-                // Người dùng chưa đăng nhập: Lưu vào Redis cache
-                var sessionId = Utility.GetSessionId(_httpContextAccessor);
-                var result =await DeleteCartItemInCacheAsync(sessionId, request);
-                if (result != Guid.Empty)
+                try
                 {
-                    return new ApiReponse<string>
+                    if (!Guid.TryParse(productId, out Guid pdid))
                     {
-                        Message = $"Xóa sản phẩm {product.Name} khỏi giỏ hàng thành công",
-                        Response = result.ToString()
-                    };
+                        throw new BadRequestException("Mã sản phẩm không hợp lệ.");
+                    }
+                    var product = await _unitOfWork.Products.FirstOrDefaultAsync(p => p.Id == pdid);
+                    if (product is null)
+                    {
+                        throw new NotFoundException("Sản phẩm không tồn tại vui lòng thử lại");
+                    }
+                    var userId = _currentUser.GetCurrentUserId();
+                    Guid resultAdd = Guid.Empty;
+                    if (userId == Guid.Empty)
+                    {
+                        // Người dùng chưa đăng nhập: Lưu vào Redis cache
+                        var sessionId = Utility.GetSessionId(_httpContextAccessor);
+                        var result = await DeleteCartItemInCacheAsync(sessionId, productId);
+                    }
+                    else//Xử lý trong database khi người dùng đăng nhập
+                    {
+
+                    }
+                }
+                catch (Exception)
+                {
+                    throw new NotImplementedException();
                 }
             }
-            else
+            return new ApiReponse<string>
             {
-
-            }
-            throw new NotImplementedException();
+                Message = $"Xóa sản phẩm khỏi giỏ hàng thành công"
+            };
         }
-        private async Task<Guid> DeleteCartItemInCacheAsync(string sessionId, DeleteCartItemCommand command)
+        private async Task<Guid> DeleteCartItemInCacheAsync(string sessionId, string productId)
         {
             var cacheKey = $"{Constants.CART_CACHE_KEY_PREFIX}{sessionId}";
             var cartItemsJson = await _cache.GetCacheReponseAync(cacheKey);
@@ -76,7 +82,7 @@ namespace Shopee.Application.Commands.CartItem
                 ? new List<AddToCartReponseDTO>() // Nếu không có, tạo mới danh sách
                 : JsonConvert.DeserializeObject<IList<AddToCartReponseDTO>>(cartItemsJson);
             // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-            var cartItem = cartItems.FirstOrDefault(x => x.ProductId == command.ProductId);
+            var cartItem = cartItems.FirstOrDefault(x => x.ProductId == productId);
             if (cartItem != null)
             {
                 cartItems.Remove(cartItem);

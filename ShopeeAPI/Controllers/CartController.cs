@@ -24,13 +24,13 @@ namespace Shopee.API.Controllers
             var result = await mediator.Send(new GetCartQuery());
             return Ok(result);
         }
-        [HttpDelete("delete-cart-item/{productId}")]
-        public async Task<IActionResult> RemoveCartItems([FromQuery] DeleteCartItemCommand command)
+        [HttpDelete("delete-cart-item")]
+        public async Task<IActionResult> RemoveCartItems(DeleteCartItemCommand command)
         {
             var result = await mediator.Send(command);
             return Ok(result);
         }
-        [HttpPost("update-cart-item")]
+        [HttpPatch("update-cart-item")]
         public async Task<IActionResult> UpdateCartImtes(UpdateCartItemCommand command)
         {
             var result = await mediator.Send(command);
