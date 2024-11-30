@@ -3,12 +3,12 @@ using Shopee.Application.DTOs;
 
 namespace Shopee.Application.Queries.User
 {
-    public class GetAllUsersDetailsQuery : IRequest<List<UserDetailsResponseDTO>>
+    public class GetAllUsersDetailsQuery : IRequest<List<UserResponseDTO>>
     {
         //public string UserId { get; set; }
     }
 
-    public class GetAllUsersDetailsQueryHandler : IRequestHandler<GetAllUsersDetailsQuery, List<UserDetailsResponseDTO>>
+    public class GetAllUsersDetailsQueryHandler : IRequestHandler<GetAllUsersDetailsQuery, List<UserResponseDTO>>
     {
         private readonly IIdentityService _identityService;
 
@@ -17,10 +17,10 @@ namespace Shopee.Application.Queries.User
             _identityService = identityService;
         }
 
-        public async Task<List<UserDetailsResponseDTO>> Handle(GetAllUsersDetailsQuery request, CancellationToken cancellationToken)
+        public async Task<List<UserResponseDTO>> Handle(GetAllUsersDetailsQuery request, CancellationToken cancellationToken)
         {
             var users = await _identityService.GetAllUsersAsync();
-            var userDetails = users.Select(x => new UserDetailsResponseDTO()
+            var userDetails = users.Select(x => new UserResponseDTO()
             {
                 Id = x.id,
                 Email = x.email,

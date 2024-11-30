@@ -50,5 +50,6 @@ namespace Shopee.Application.Common.Interfaces
         Task<bool> UpdateUsersRole(string userName, IList<string> usersRole);
 
         Task<bool> SaveRefreshTokenUser(ApplicationUser user);
+        Task<ApplicationUser> GetUserById(string id);
     }
 }

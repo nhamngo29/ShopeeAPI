@@ -246,6 +246,10 @@ namespace Shopee.Infrastructure.Services
 
         public async Task<ApplicationUser> GetRefreshTokenByIdUser(string id)
         {
+            return await userManager.Users.FirstAsync(t => t.Id == id);
+        }
+        public async Task<ApplicationUser> GetUserById(string id)
+        {
             return await userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
         }
 
