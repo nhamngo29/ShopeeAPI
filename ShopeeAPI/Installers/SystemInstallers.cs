@@ -1,4 +1,7 @@
-﻿namespace Shopee.API.Installers
+﻿using Shopee.Application.Common.Interfaces;
+using Shopee.Infrastructure.Services;
+
+namespace Shopee.API.Installers
 {
     public class SystemInstallers : IInstaller
     {
@@ -11,6 +14,7 @@
                 options.Cookie.HttpOnly = true;
             });
             services.AddEndpointsApiExplorer();
+            services.AddTransient<IFileService, LocalStorageFileService>();
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",

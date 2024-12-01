@@ -8,6 +8,7 @@ using Shopee.Application.Common.Exceptions;
 using System.Text;
 using Serilog;
 using Shopee.API.Installers;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) =>
@@ -46,7 +47,12 @@ app.UseCors("CorsPolicy");
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath,"wwwroot", "Images")),
+    RequestPath = "/Resources"
+});
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers(); // Nếu bạn sử dụng controller

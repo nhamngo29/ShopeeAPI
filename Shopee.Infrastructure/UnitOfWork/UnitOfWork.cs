@@ -29,6 +29,8 @@ namespace Shopee.Infrastructure.UnitOfWork
 
         private Lazy<ICartItemRepository> _cartItem;
         public ICartItemRepository CartItem => _cartItem.Value;
+        private Lazy<IUserRepository> _user;
+        public IUserRepository User => _user.Value;
 
         #endregion Repositories
 
@@ -40,6 +42,7 @@ namespace Shopee.Infrastructure.UnitOfWork
             _imageProducts = new Lazy<IImageProductRepository>(() => new ImageProductRepository(_context));
             _cart = new Lazy<ICartRepository>(() => new CartRepository(_context));
             _cartItem = new Lazy<ICartItemRepository>(() => new CartItemRepository(_context));
+            _user=new Lazy<IUserRepository>(() => new UserRepository(_context));
         }
 
         // save changes

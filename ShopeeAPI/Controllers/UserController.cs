@@ -22,5 +22,11 @@ namespace Shopee.Api.Controllers
             var result = await mediator.Send(query);
             return Ok(result);
         }
+        [HttpPut("")]
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileCommand command)
+        {
+            var result=await mediator.Send(command);
+            return Ok(result);
+        }
     }
 }

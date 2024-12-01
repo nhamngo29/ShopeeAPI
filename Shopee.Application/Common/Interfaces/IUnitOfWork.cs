@@ -9,7 +9,7 @@ public interface IUnitOfWork
     IProductRepository Products { get; }
     ICartRepository Cart { get; }
     ICartItemRepository CartItem { get; }
-
+    IUserRepository User { get; }
     /// <summary>
     /// Saves changes to the database. This is called when the user changes the data or saves a new version of the data.
     /// </summary>
