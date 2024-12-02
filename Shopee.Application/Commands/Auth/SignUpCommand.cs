@@ -8,18 +8,18 @@ namespace Shopee.Application.Commands.Auth
     {
         public SignUpRequestValidator()
         {
-            RuleFor(t => t.FullName).NotEmpty().WithMessage("{PropertyName} is required.");
-            RuleFor(t => t.Email).NotEmpty().WithMessage("{PropertyName} is required").EmailAddress().WithMessage("Please enter email connert");
+            RuleFor(t => t.FullName).NotEmpty().WithMessage("Vui lòng nhập họ và tên.");
+            RuleFor(t => t.Email).NotEmpty().WithMessage("Vui lòng nhập Email.").EmailAddress().WithMessage("Vui lòng nhập đúng định dạng Email.");
             RuleFor(t => t.Password)
-    .NotEmpty().WithMessage("{PropertyName} is required.")
-    .MinimumLength(8).WithMessage("{PropertyName} must be at least 8 characters long.")
-    .Matches("[A-Z]").WithMessage("{PropertyName} must contain at least one uppercase letter.")
-    .Matches("[a-z]").WithMessage("{PropertyName} must contain at least one lowercase letter.")
-    .Matches("[0-9]").WithMessage("{PropertyName} must contain at least one number.")
-    .Matches("[^a-zA-Z0-9]").WithMessage("{PropertyName} must contain at least one special character.");
+    .NotEmpty().WithMessage("Vui lòng nhập mật khẩu.")
+    .MinimumLength(8).WithMessage("Mật khẩu phải dài hơn 8 ký tự.")
+    .Matches("[A-Z]").WithMessage("Mật khẩu phải có một ký tự hoa.")
+    .Matches("[a-z]").WithMessage("Mật khẩu phải có một ký tự thường.")
+    .Matches("[0-9]").WithMessage("Mật khẩu phải có một ký tự số.")
+    .Matches("[^a-zA-Z0-9]").WithMessage("Mật khẩu phải có một ký tự đặt biệt.");
             RuleFor(t => t.PasswordConfirm)
-    .NotEmpty().WithMessage("{PropertyName} is required.")
-    .Equal(t => t.Password).WithMessage("Password confirmation does not match the password.");
+    .NotEmpty().WithMessage("Vui lòng nhập lại mật khẩu.")
+    .Equal(t => t.Password).WithMessage("Nhập lại mật khẩu không chính xác.");
         }
     }
 

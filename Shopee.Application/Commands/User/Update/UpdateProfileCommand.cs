@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Shopee.Application.Commands.Auth;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
 using Shopee.Application.Common.Interfaces.Repository;
@@ -15,6 +17,54 @@ using System.Threading.Tasks;
 
 namespace Shopee.Application.Commands.User.Update
 {
+    public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
+    {
+        public UpdateProfileCommandValidator()
+        {
+            RuleFor(t => t.FullName)
+                .NotEmpty()
+                .WithMessage("Vui lòng nhập họ và tên.");
+
+            RuleFor(t => t.Address)
+                .NotEmpty()
+                .WithMessage("Vui lòng nhập địa chỉ.");
+
+            RuleFor(t => t.DateOfBirth)
+                .NotEmpty()
+                .WithMessage("Vui lòng nhập ngày sinh.")
+                .LessThan(DateTime.Now)
+                .WithMessage("Ngày sinh phải nhỏ hơn ngày hiện tại.");
+
+            RuleFor(t => t.PhoneNumber)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .WithMessage("Vui lòng nhập số điện thoại.")
+                .Matches(@"^\d+$")
+                .WithMessage("Số điện thoại chỉ được chứa chữ số.")
+                .Matches(@"^0[3|5|7|8|9]\d{8}$")
+                .WithMessage("Số điện thoại không đúng định dạng tại Việt Nam.");
+
+            RuleFor(t => t.ProfilePricture)
+                .Custom((file, context) =>
+                {
+                    if (file != null)
+                    {
+                        const int maxFileSizeInBytes = 500 * 1024; // 500KB
+                        if (file.Length > maxFileSizeInBytes)
+                        {
+                            context.AddFailure("ProfilePricture", "Kích thước ảnh không được vượt quá 500KB.");
+                        }
+
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                        var fileExtension = Path.GetExtension(file.FileName)?.ToLower();
+                        if (!allowedExtensions.Contains(fileExtension))
+                        {
+                            context.AddFailure("ProfilePricture", "Định dạng ảnh không hợp lệ. Chỉ hỗ trợ .jpg, .jpeg, .png.");
+                        }
+                    }
+                });
+        }
+    }
     public class UpdateProfileCommand : IRequest<ApiReponse<UserResponseDTO>>
     {
         public string? FullName { get; set; }
