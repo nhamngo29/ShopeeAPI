@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Shopee.Domain\Shopee.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Validations\" />
+  </ItemGroup>
+
 </Project>

@@ -10,7 +10,7 @@ namespace Shopee.Application.Common.Interfaces
         Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles);
 
         Task<bool> SigninUserAsync(string userName, string password);
-
+        Task<bool> ChangePassword(ApplicationUser user, string password, string newPassword);
         Task<string> GetUserIdAsync(string userName);
 
         Task<(string userId, string fullName, string UserName, string email, IList<string> roles)> GetUserDetailsAsync(string userId);

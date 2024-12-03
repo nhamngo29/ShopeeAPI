@@ -28,5 +28,11 @@ namespace Shopee.Api.Controllers
             var result=await mediator.Send(command);
             return Ok(result);
         }
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+        {
+            var result=await mediator.Send(command);
+            return Ok(result);  
+        }
     }
 }

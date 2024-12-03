@@ -8,8 +8,6 @@ namespace Shopee.Infrastructure.Services
 {
     public class IdentityService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager) : IIdentityService
     {
-
-
         public async Task<bool> AssignUserToRole(string userName, IList<string> roles)
         {
             var user = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
@@ -21,7 +19,7 @@ namespace Shopee.Infrastructure.Services
             var result = await userManager.AddToRolesAsync(user, roles);
             return result.Succeeded;
         }
-
+        
         public async Task<bool> CreateRoleAsync(string roleName)
         {
             var result = await roleManager.CreateAsync(new IdentityRole(roleName));
@@ -198,6 +196,11 @@ namespace Shopee.Infrastructure.Services
         public async Task<bool> IsUniqueUserName(string userName)
         {
             return await userManager.FindByNameAsync(userName) == null;
+        }
+        public async Task<bool> ChangePassword(ApplicationUser user,string password,string newPassword)
+        {
+            var result = await userManager.ChangePasswordAsync(user, password, newPassword);
+            return result.Succeeded;
         }
 
         public async Task<bool> SigninUserAsync(string userName, string password)
