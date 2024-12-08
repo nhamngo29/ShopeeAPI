@@ -47,7 +47,11 @@ namespace Shopee.API.Installers
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
+            services.AddAuthentication().AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+            });
         }
     }
 }

@@ -3,13 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Shopee.Application.Common.Exceptions;
-using Shopee.Application.DTOs.Cart;
 using Shopee.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shopee.Application.DTOs.Cart;
+
 
 namespace Shopee.Application.Commands.CartItem
 {

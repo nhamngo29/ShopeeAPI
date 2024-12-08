@@ -1,16 +1,11 @@
-﻿using MediatR;
-using Shopee.Application.DTOs.Cart;
-using Shopee.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shopee.Application.Common.Exceptions;
 using Newtonsoft.Json;
-using Shopee.Domain.Entities;
+using Shopee.Application.Common.Exceptions;
+using Shopee.Application.DTOs;
+using Shopee.Application.DTOs.Cart;
+using Shopee.Domain.Constants;
 
 namespace Shopee.Application.Commands.CartItem
 {

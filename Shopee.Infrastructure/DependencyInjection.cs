@@ -2,15 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shopee.Application.Common;
-using Shopee.Application.Common.Exceptions;
 using Shopee.Application.Common.Interfaces;
+using Shopee.Application.Services.Interfaces;
 using Shopee.Domain.Entities;
-using Shopee.Domain.Repositories.Command.Base;
-using Shopee.Domain.Repositories.Query.Base;
-using Shopee.Infrastructure.Data;
+using Shopee.Domain.Interfaces.UnitOfWork;
 using Shopee.Infrastructure.Services;
-using StackExchange.Redis;
 
 namespace Shopee.Infrastructure
 {
@@ -38,6 +34,7 @@ namespace Shopee.Infrastructure
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddSingleton<ITokenService, TokenService>();
             services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+            services.AddScoped<ICartCacheService, CartCacheService>();
             return services;
         }
     }

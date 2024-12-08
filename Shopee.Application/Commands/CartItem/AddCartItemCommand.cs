@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.DTOs;
 using Shopee.Application.DTOs.Cart;
-using Shopee.Domain.Entities;
+using Shopee.Domain.Constants;
 
 namespace Shopee.Application.Commands.CartItem
 {

@@ -1,14 +1,8 @@
-﻿using MediatR;
-using Shopee.Application.Common.Models;
-using Shopee.Application.DTOs.Product;
-using Shopee.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Shopee.Application.DTOs;
+using Shopee.Application.DTOs.Product;
 
 namespace Shopee.Application.Queries.Product
 {

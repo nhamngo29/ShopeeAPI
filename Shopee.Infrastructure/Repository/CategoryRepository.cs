@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Shopee.Application.Common.Interfaces.Repository;
 using Shopee.Domain.Entities;
-using Shopee.Infrastructure.Data;
+using Shopee.Domain.Interfaces.Repositories;
 
 namespace Shopee.Infrastructure.Repository;
 

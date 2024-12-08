@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Shopee.Application.Common.Exceptions;
-using Shopee.Application.Common.Interfaces;
-using Shopee.Application.Common.Interfaces.Repository;
-using Shopee.Infrastructure.Data;
+using Shopee.Domain.Interfaces.Repositories;
+using Shopee.Domain.Interfaces.UnitOfWork;
 using Shopee.Infrastructure.Repository;
 
 namespace Shopee.Infrastructure.UnitOfWork
@@ -32,6 +31,12 @@ namespace Shopee.Infrastructure.UnitOfWork
         private Lazy<IUserRepository> _user;
         public IUserRepository User => _user.Value;
 
+        private Lazy<IOrderRepository> _orders;
+        public IOrderRepository Orders => _orders.Value;
+
+        private Lazy<IOrderItemRepository> _orderItems;
+        public IOrderItemRepository OrderItems=> _orderItems.Value;
+
         #endregion Repositories
 
         public UnitOfWork(ApplicationDbContext dbContext)
@@ -43,6 +48,8 @@ namespace Shopee.Infrastructure.UnitOfWork
             _cart = new Lazy<ICartRepository>(() => new CartRepository(_context));
             _cartItem = new Lazy<ICartItemRepository>(() => new CartItemRepository(_context));
             _user=new Lazy<IUserRepository>(() => new UserRepository(_context));
+            _orders=new Lazy<IOrderRepository>(() => new OrderRepository(_context));
+            _orderItems=new Lazy<IOrderItemRepository>(()=>new OrderItemRepository(_context));
         }
 
         // save changes
@@ -118,7 +125,6 @@ namespace Shopee.Infrastructure.UnitOfWork
             _transaction.Dispose();
             _transaction = null;
         }
-
         // dispose
         protected virtual void Dispose(bool disposing)
         {

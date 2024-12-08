@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
-using Shopee.Application.Common.Models;
 using Shopee.Application.DTOs;
 using Shopee.Application.DTOs.Category;
-using Shopee.Application.DTOs.Product;
-using Shopee.Application.Queries.Product;
-using Shopee.Domain.Entities;
 
 namespace Shopee.Application.Queries.Category;
 public class GetAllCategoryQuery : IRequest<ApiReponse<IEnumerable<CategoryResponseDTO>>>

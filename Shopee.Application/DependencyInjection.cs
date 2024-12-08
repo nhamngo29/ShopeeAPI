@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Shopee.Application.Commands.Auth;
+using Shopee.Application.Commands.Order;
 using Shopee.Application.Commands.User.Update;
 using Shopee.Application.Common.Behaviours;
 using Shopee.Application.Services;
@@ -16,6 +17,7 @@ namespace Shopee.Application
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddValidatorsFromAssemblyContaining<SignUpRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<UpdateProfileCommandValidator>();
+            services.AddValidatorsFromAssemblyContaining<CreateOrderCommandValidator>();
             services.AddMediatR(ctg =>
             {
                 ctg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());

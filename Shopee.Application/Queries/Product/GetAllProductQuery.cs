@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Shopee.Application.Common.Models;
 using Shopee.Application.DTOs;
 using Shopee.Application.DTOs.Product;
-using Shopee.Application.Utilities;
+using Shopee.Domain.Common;
 
 namespace Shopee.Application.Queries.Product
 {

@@ -1,5 +1,7 @@
 ﻿using Shopee.Domain.Enums;
 using Shopee.Domain.ErrorMessage;
+using ErrorMessage = Shopee.Domain.Constants.ErrorMessage;
+
 
 namespace Shopee.Application.Common.Exceptions;
 

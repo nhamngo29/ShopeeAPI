@@ -1,8 +1,7 @@
-﻿using Shopee.Application.Common.Models;
+﻿using Shopee.Domain.Common;
 using System.Linq.Expressions;
 
-namespace Shopee.Application.Common.Interfaces;
-
+namespace Shopee.Domain.Interfaces.Repositories;
 public interface IGenericRepository<T> where T : class
 {
     Task AddAsync(T entity);
@@ -17,7 +16,7 @@ public interface IGenericRepository<T> where T : class
 
     Task<int> CountAsync();
 
-    Task<T> GetByIdAsync(object id);
+    Task<T?> GetByIdAsync(object id);
 
     Task<Pagination<T>> ToPagination(
         int pageIndex,

@@ -1,12 +1,14 @@
-﻿using Shopee.Application.Common.Interfaces.Repository;
+﻿using Shopee.Domain.Interfaces.Repositories;
 
-namespace Shopee.Application.Common.Interfaces;
+namespace Shopee.Domain.Interfaces.UnitOfWork;
 
 public interface IUnitOfWork
 {
     ICategoryRepository Categories { get; }
     IImageProductRepository ImageProducts { get; }
     IProductRepository Products { get; }
+    IOrderRepository Orders { get; }
+    IOrderItemRepository OrderItems { get; }
     ICartRepository Cart { get; }
     ICartItemRepository CartItem { get; }
     IUserRepository User { get; }

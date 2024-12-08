@@ -1,18 +1,9 @@
-﻿using MediatR;
-using Shopee.Application.DTOs.Category;
-using Shopee.Application.DTOs;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Shopee.Application.DTOs.Cart;
-using AutoMapper;
-using Shopee.Application.Common.Interfaces;
-using Newtonsoft.Json;
-using Shopee.Domain.Entities;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Shopee.Application.DTOs;
+using Shopee.Application.DTOs.Cart;
 
 namespace Shopee.Application.Queries.Cart
 {

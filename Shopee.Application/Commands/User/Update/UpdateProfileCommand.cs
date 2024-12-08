@@ -1,19 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Shopee.Application.Commands.Auth;
 using Shopee.Application.Common.Exceptions;
-using Shopee.Application.Common.Interfaces;
-using Shopee.Application.Common.Interfaces.Repository;
 using Shopee.Application.DTOs;
-using Shopee.Application.DTOs.User;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shopee.Application.Commands.User.Update;
 public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
