@@ -12,8 +12,6 @@ public interface IGenericRepository<T> where T : class
 
     Task<bool> AnyAsync();
 
-    Task<int> CountAsync(Expression<Func<T, bool>> filter);
-
     Task<int> CountAsync();
 
     Task<T?> GetByIdAsync(object id);
@@ -41,4 +39,9 @@ public interface IGenericRepository<T> where T : class
     Task Delete(object id);
 
     Task<IEnumerable<T>> GetAll(Func<IQueryable<T>, IQueryable<T>>? include = null);
+    Task<IList<TResult>> GetFilter<TResult>(
+    Expression<Func<T, bool>> filter,
+    Func<IQueryable<T>, IQueryable<T>>? include = null,
+    Expression<Func<T, TResult>>? selector = null);
+    Task<IList<T>> GetFilter(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IQueryable<T>>? include = null);
 }

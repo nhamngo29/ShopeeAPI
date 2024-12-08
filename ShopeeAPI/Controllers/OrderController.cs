@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shopee.Application.Commands.Order;
 using Shopee.Application.DTOs.Order;
+using Shopee.Application.Queries.Order;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Shopee.API.Controllers;
 [Route("api/[controller]")]
@@ -17,6 +19,12 @@ public class OrderController(IMediator mediator) : ControllerBase
             Items = items
         };
         var result=await mediator.Send(command);
+        return Ok(result);
+    }
+    [HttpGet]
+    public async Task<IActionResult> Order([FromQuery] GetOrderQuery request)
+    {
+        var result = await mediator.Send(request);
         return Ok(result);
     }
 }
