@@ -18,21 +18,21 @@ namespace Shopee.Application.Queries.Cart
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cache; // Redis cache
         private readonly IMapper _mapper;
-        private readonly ICurrentUser _currentUser;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GetCartQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUser currentUser, ICacheService cache, IHttpContextAccessor httpContextAccessor)
+        public GetCartQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService, ICacheService cache, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _currentUser = currentUser;
+            _currentUserService = currentUserService;
             _cache = cache;
             _httpContextAccessor = httpContextAccessor;
         }
         public async Task<ApiReponse<GetCartItemReponseDTO>> Handle(GetCartQuery request, CancellationToken cancellationToken)
         {
-            var userId = _currentUser.GetCurrentUserId();
-            if (userId == Guid.Empty)
+            var userId = _currentUserService.GetUserId();
+            if (!string.IsNullOrEmpty(userId))
             {
                 var sessionId = Utility.GetSessionId(_httpContextAccessor);
                 return new ApiReponse<GetCartItemReponseDTO>()
@@ -53,9 +53,9 @@ namespace Shopee.Application.Queries.Cart
 
             return null;
         }
-        public async Task<GetCartItemReponseDTO?> GetCartItemInDbAsync(Guid userId)
+        public async Task<GetCartItemReponseDTO?> GetCartItemInDbAsync(string userId)
         {
-            var cart = await _unitOfWork.Cart.FirstOrDefaultAsync(t => t.UserId == userId);
+            var cart = await _unitOfWork.Cart.FirstOrDefaultAsync(t => t.UserId.ToString() == userId);
             if(cart is null)
                 return GetCartItemReponseDTO.Default;
             var cartItems = await _unitOfWork.CartItem.GetFilter(t => t.CartId == cart.Id);

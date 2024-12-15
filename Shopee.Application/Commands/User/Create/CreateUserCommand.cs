@@ -24,7 +24,7 @@ namespace Shopee.Application.Commands.User.Create
         public async Task<int> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var result = await _identityService.CreateUserAsync(request.UserName, request.Password, request.Email, request.FullName, request.Roles);
-            return result.isSucceed ? 1 : 0;
+            return result!=null ? 1 : 0;
         }
     }
 }

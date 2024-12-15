@@ -31,7 +31,7 @@ namespace Shopee.Infrastructure.Services
         }
 
         // Return multiple value
-        public async Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles)
+        public async Task<ApplicationUser> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles)
         {
             var user = new ApplicationUser()
             {
@@ -52,7 +52,7 @@ namespace Shopee.Infrastructure.Services
             {
                 throw new ValidationException(addUserRole.Errors);
             }
-            return (result.Succeeded, user.Id);
+            return user;
         }
 
         public async Task<bool> DeleteRoleAsync(string roleId)
@@ -247,11 +247,15 @@ namespace Shopee.Infrastructure.Services
             return result.Succeeded;
         }
 
-        public async Task<ApplicationUser> GetRefreshTokenByIdUser(string id)
+        public async Task<ApplicationUser> GetRefreshTokenByIdUser(string? id)
         {
-            return await userManager.Users.FirstAsync(t => t.Id == id);
+            return await userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
         }
-        public async Task<ApplicationUser> GetUserById(string id)
+        public async Task<ApplicationUser?> GetUserByRefreshToken(string? refreshToken)
+        {
+            return await userManager.Users.FirstOrDefaultAsync(t => t.RefreshToken == refreshToken);
+        }
+        public async Task<ApplicationUser?> GetUserById(string id)
         {
             return await userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
         }

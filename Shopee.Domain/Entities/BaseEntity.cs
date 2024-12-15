@@ -9,9 +9,9 @@ namespace Shopee.Domain.Entities
         [JsonIgnore]
         public Guid Id { get; set; } = Guid.NewGuid();
         [JsonIgnore]
-        public DateTime CreateAt { get; set; } = DateTime.Now;
+        public DateTime CreateAt { get;private set; } = DateTime.Now;
         [JsonIgnore]
-        public DateTime UpdateAt { get; set; }
+        public DateTime UpdateAt { get; private set; }=DateTime.Now;
         [JsonIgnore]
         public Guid? CreatedBy { get; set; }
         [JsonIgnore]

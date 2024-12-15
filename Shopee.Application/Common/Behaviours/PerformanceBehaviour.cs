@@ -8,19 +8,13 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 {
     private readonly Stopwatch _timer;
     private readonly ILogger<TRequest> _logger;
-    private readonly ICurrentUser _currentUser;
-    private readonly IIdentityService _identityService;
 
     public PerformanceBehaviour(
-        ILogger<TRequest> logger,
-        ICurrentUser currentUser,
-        IIdentityService identityService)
+        ILogger<TRequest> logger)
     {
         _timer = new Stopwatch();
 
         _logger = logger;
-        _currentUser = currentUser;
-        _identityService = identityService;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -36,16 +30,8 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;
-            var userId = _currentUser.GetCurrentUserId();
-            var userName = string.Empty;
-
-            if(userId!=Guid.Empty)
-            {
-                userName = await _identityService.GetUserNameAsync(userId.ToString());
-            }
-
-            _logger.LogWarning("CleanArchitecture Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
-                requestName, elapsedMilliseconds, userId, userName, request);
+            _logger.LogWarning("CleanArchitecture Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}",
+                requestName, elapsedMilliseconds,  request);
         }
 
         return response;

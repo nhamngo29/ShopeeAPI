@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Shopee.Application.Common.Exceptions;
 using Shopee.Application.DTOs;
+using Shopee.Application.Services.Interfaces;
 
 namespace Shopee.Application.Commands.Auth
 {
@@ -18,13 +19,12 @@ namespace Shopee.Application.Commands.Auth
 
             if (!result)
             {
-                throw new HttpStatusException(401, "Tên tài khoản của bạn hoặc Mật khẩu không đúng, vui lòng thử lại");
+                throw new HttpStatusException(401, "Tên tài khoản hoặc mật khẩu không đúng, vui lòng thử lại");
             }
-
             var userId = await identityService.GetUserIdAsync(request.UserName);
             var user = await identityService.GetRefreshTokenByIdUser(userId);
             var roleUsers = await identityService.GetUserRolesAsync(user.Id);//get role user
-            string token = tokenService.GenerateJWTToken((user.Id, user.UserName, roleUsers, user.Email, user.FullName));
+            string token = await tokenService.GenerateToken(user);
             string refreshToken = tokenService.GenerateRefreshToken();
             user.RefreshToken = refreshToken;
             await identityService.SaveRefreshTokenUser(user);//save refresh token

@@ -4,10 +4,10 @@ namespace Shopee.Application.Common.Interfaces
 {
     public interface IIdentityService
     {
-        Task<ApplicationUser> GetRefreshTokenByIdUser(string id);
-
+        Task<ApplicationUser> GetRefreshTokenByIdUser(string? id);
+        Task<ApplicationUser?> GetUserByRefreshToken(string? refreshToken);
         // User section
-        Task<(bool isSucceed, string userId)> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles);
+        Task<ApplicationUser> CreateUserAsync(string userName, string password, string email, string fullName, List<string> roles);
 
         Task<bool> SigninUserAsync(string userName, string password);
         Task<bool> ChangePassword(ApplicationUser user, string password, string newPassword);
@@ -50,6 +50,6 @@ namespace Shopee.Application.Common.Interfaces
         Task<bool> UpdateUsersRole(string userName, IList<string> usersRole);
 
         Task<bool> SaveRefreshTokenUser(ApplicationUser user);
-        Task<ApplicationUser> GetUserById(string id);
+        Task<ApplicationUser?> GetUserById(string id);
     }
 }

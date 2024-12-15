@@ -32,9 +32,11 @@ namespace Shopee.Infrastructure
                 options.Password.RequiredLength = 6;
             });
             services.AddScoped<IIdentityService, IdentityService>();
-            services.AddSingleton<ITokenService, TokenService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
             services.AddScoped<ICartCacheService, CartCacheService>();
+            services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IUserServices, UserService>();
             return services;
         }
     }

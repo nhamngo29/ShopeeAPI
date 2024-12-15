@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using MediatR;
+using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
+using Shopee.Application.Services.Interfaces;
 
 namespace Shopee.Application.Commands.Auth
 {
@@ -53,17 +55,17 @@ namespace Shopee.Application.Commands.Auth
                 };
             }
 
-            var (userId, fullName, userName, email, roles) = await identityService.GetUserDetailsAsync(await identityService.GetUserIdAsync(request.UserName));
-
-            string token = tokenService.GenerateJWTToken((userId, userName, roles, email, fullName));
-
+            string token =await tokenService.GenerateToken(result);
+            string refreshToken = tokenService.GenerateRefreshToken();
+            result.RefreshToken = refreshToken;
+            await identityService.SaveRefreshTokenUser(result);//save refresh token
             return new ApiReponse<AuthResponseDTO>()
             {
                 Message = "Đăng ký thành công",
                 Response = new AuthResponseDTO()
                 {
-                    Roles = roles.ToList(),
-                    AccessToken = token
+                    AccessToken = token,
+                    RefreshToken = refreshToken,
                 }
             };
         }

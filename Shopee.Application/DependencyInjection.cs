@@ -25,9 +25,9 @@ namespace Shopee.Application
                 ctg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
                 ctg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
             });
-            services.AddSingleton<ICurrentUser, CurrentUser>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
 
-            services.AddSingleton<ICookieService, CookieService>();
+            services.AddScoped<ICookieService, CookieService>();
             services.AddScoped<IMailService, MailService>();
             return services;
         }

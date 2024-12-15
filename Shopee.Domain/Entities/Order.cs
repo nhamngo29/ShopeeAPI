@@ -58,7 +58,6 @@ public class Order : BaseEntity
         }
 
         RecalculateTotal();
-        UpdateAt = DateTime.UtcNow; // Cập nhật thời gian sửa đổi
     }
 
     public void RemoveItem(Guid productId)
@@ -68,14 +67,12 @@ public class Order : BaseEntity
         {
             OrderItems.Remove(item);
             RecalculateTotal();
-            UpdateAt = DateTime.UtcNow;
         }
     }
 
     public void UpdateStatus(OrderStatus newStatus)
     {
         Status = newStatus.ToString();
-        UpdateAt = DateTime.UtcNow;
     }
 
     private void RecalculateTotal()

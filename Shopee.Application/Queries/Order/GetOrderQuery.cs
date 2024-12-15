@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Shopee.Application.Commands.Order;
+using Shopee.Application.Common.Interfaces;
 using Shopee.Application.DTOs;
 using Shopee.Application.DTOs.Order;
 using Shopee.Application.DTOs.Product;
@@ -24,16 +25,16 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, ApiReponse<IE
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IIdentityService _identityService;
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IFileService _fileService;
     private readonly ICartCacheService _CartCacheService;
-    public GetOrderQueryHandler(ICurrentUser currentUser, IIdentityService identityService, IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IHttpContextAccessor httpContextAccessor, ICartCacheService cartCacheService)
+    public GetOrderQueryHandler(ICurrentUserService currentUserService, IIdentityService identityService, IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IHttpContextAccessor httpContextAccessor, ICartCacheService cartCacheService)
     {
         _unitOfWork = unitOfWork;
         _identityService = identityService;
-        _currentUser = currentUser;
+        _currentUserService = currentUserService;
         _mapper = mapper;
         _fileService = fileService;
         _httpContextAccessor = httpContextAccessor;
@@ -42,8 +43,8 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, ApiReponse<IE
     public async Task<ApiReponse<IEnumerable<OrderReponseDto>>> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
        
-        var userId = _currentUser.GetCurrentUserId();
-        if (userId == Guid.Empty)
+        var userId = _currentUserService.GetUserId();
+        if (string.IsNullOrEmpty(userId))
             throw new UnauthorizedAccessException();
         var orders = await _unitOfWork.Orders.GetFilter(t => t.UserId == userId.ToString() && t.Status==request.status.ToString(), query => query.Include(o => o.OrderItems));
         var listOrder = new List<OrderReponseDto>();

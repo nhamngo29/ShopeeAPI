@@ -13,6 +13,7 @@ namespace Shopee.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController(IMediator mediator) : ControllerBase
     {
         [HttpGet("me")]

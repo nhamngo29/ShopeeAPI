@@ -1,16 +1,20 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Shopee.Application.Common.Interfaces;
+using Shopee.Application.DTOs.User;
+using Shopee.Application.Services.Interfaces;
 using Shopee.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Shopee.Infrastructure.Services;
-public class UserService:IUserService
+public class UserService: IUserServices
 {
     private readonly ITokenService _tokenService;
     private readonly ICurrentUserService _currentUserService;
@@ -26,7 +30,7 @@ public class UserService:IUserService
     /// <param name="userManager">The user manager for managing user information.</param>
     /// <param name="mapper">The mapper for mapping objects.</param>
     /// <param name="logger">The logger for logging information.</param>
-    public UserService(ITokenService tokenService, ICurrentUserService currentUserService, UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<UserServiceImpl> logger)
+    public UserService(ITokenService tokenService, ICurrentUserService currentUserService, UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<UserService> logger)
     {
         _tokenService = tokenService;
         _currentUserService = currentUserService;
@@ -41,7 +45,7 @@ public class UserService:IUserService
     /// <param name="request">The user registration request.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the user response.</returns>
     /// <exception cref="Exception">Thrown when the email already exists or user creation fails.</exception>
-    public async Task<UserResponse> RegisterAsync(UserRegisterRequest request)
+    public async Task<UserResponseDto> RegisterAsync(UserRegisterRequestDto request)
     {
         _logger.LogInformation("Registering user");
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
@@ -64,9 +68,7 @@ public class UserService:IUserService
         }
         _logger.LogInformation("User created successfully");
         await _tokenService.GenerateToken(newUser);
-        newUser.CreateAt = DateTime.Now;
-        newUser.UpdateAt = DateTime.Now;
-        return _mapper.Map<UserResponse>(newUser);
+        return _mapper.Map<UserResponseDto>(newUser);
     }
 
     /// <summary>
@@ -97,7 +99,7 @@ public class UserService:IUserService
     /// <returns>A task that represents the asynchronous operation. The task result contains the user response.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the login request is null.</exception>
     /// <exception cref="Exception">Thrown when the email or password is invalid or user update fails.</exception>
-    public async Task<UserResponse> LoginAsync(UserLoginRequest request)
+    public async Task<UserResponseDto> LoginAsync(UserLoginRequestDto request)
     {
         if (request == null)
         {
@@ -122,9 +124,7 @@ public class UserService:IUserService
         using var sha256 = SHA256.Create();
         var refreshTokenHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(refreshToken));
         user.RefreshToken = Convert.ToBase64String(refreshTokenHash);
-        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(2);
-
-        user.CreateAt = DateTime.Now;
+        user.RefreshTokenExpiry = DateTime.Now.AddDays(2);
 
         // Update user information in database
         var result = await _userManager.UpdateAsync(user);
@@ -135,7 +135,7 @@ public class UserService:IUserService
             throw new Exception($"Failed to update user: {errors}");
         }
 
-        var userResponse = _mapper.Map<ApplicationUser, UserResponse>(user);
+        var userResponse = _mapper.Map<ApplicationUser, UserResponseDto>(user);
         userResponse.AccessToken = token;
         userResponse.RefreshToken = refreshToken;
 
@@ -148,7 +148,7 @@ public class UserService:IUserService
     /// <param name="id">The ID of the user.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the user response.</returns>
     /// <exception cref="Exception">Thrown when the user is not found.</exception>
-    public async Task<UserResponse> GetByIdAsync(Guid id)
+    public async Task<UserResponseDto> GetByIdAsync(Guid id)
     {
         _logger.LogInformation("Getting user by id");
         var user = await _userManager.FindByIdAsync(id.ToString());
@@ -158,7 +158,7 @@ public class UserService:IUserService
             throw new Exception("User not found");
         }
         _logger.LogInformation("User found");
-        return _mapper.Map<UserResponse>(user);
+        return _mapper.Map<UserResponseDto>(user);
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public class UserService:IUserService
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains the current user response.</returns>
     /// <exception cref="Exception">Thrown when the user is not found.</exception>
-    public async Task<CurrentUserResponse> GetCurrentUserAsync()
+    public async Task<CurrentUserResponseDto> GetCurrentUserAsync()
     {
         var user = await _userManager.FindByIdAsync(_currentUserService.GetUserId());
         if (user == null)
@@ -174,7 +174,7 @@ public class UserService:IUserService
             _logger.LogError("User not found");
             throw new Exception("User not found");
         }
-        return _mapper.Map<CurrentUserResponse>(user);
+        return _mapper.Map<CurrentUserResponseDto>(user);
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public class UserService:IUserService
     /// <param name="request">The refresh token request.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the current user response.</returns>
     /// <exception cref="Exception">Thrown when the refresh token is invalid or expired.</exception>
-    public async Task<CurrentUserResponse> RefreshTokenAsync(RefreshTokenRequest request)
+    public async Task<CurrentUserResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request)
     {
         _logger.LogInformation("RefreshToken");
 
@@ -201,7 +201,7 @@ public class UserService:IUserService
         }
 
         // Validate the refresh token expiry time
-        if (user.RefreshTokenExpiryTime < DateTime.Now)
+        if (user.RefreshTokenExpiry < DateTime.Now)
         {
             _logger.LogWarning("Refresh token expired for user ID: {UserId}", user.Id);
             throw new Exception("Refresh token expired");
@@ -210,7 +210,7 @@ public class UserService:IUserService
         // Generate a new access token
         var newAccessToken = await _tokenService.GenerateToken(user);
         _logger.LogInformation("Access token generated successfully");
-        var currentUserResponse = _mapper.Map<CurrentUserResponse>(user);
+        var currentUserResponse = _mapper.Map<CurrentUserResponseDto>(user);
         currentUserResponse.AccessToken = newAccessToken;
         return currentUserResponse;
     }
@@ -221,7 +221,7 @@ public class UserService:IUserService
     /// <param name="refreshTokenRemoveRequest">The refresh token request to be revoked.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the revoke refresh token response.</returns>
     /// <exception cref="Exception">Thrown when the refresh token is invalid or expired.</exception>
-    public async Task<RevokeRefreshTokenResponse> RevokeRefreshToken(RefreshTokenRequest refreshTokenRemoveRequest)
+    public async Task<string> RevokeRefreshToken(string refreshTokenRemoveRequest)
     {
         _logger.LogInformation("Revoking refresh token");
 
@@ -229,7 +229,7 @@ public class UserService:IUserService
         {
             // Hash the refresh token
             using var sha256 = SHA256.Create();
-            var refreshTokenHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(refreshTokenRemoveRequest.RefreshToken));
+            var refreshTokenHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(refreshTokenRemoveRequest));
             var hashedRefreshToken = Convert.ToBase64String(refreshTokenHash);
 
             // Find the user based on the refresh token
@@ -241,7 +241,7 @@ public class UserService:IUserService
             }
 
             // Validate the refresh token expiry time
-            if (user.RefreshTokenExpiryTime < DateTime.Now)
+            if (user.RefreshTokenExpiry < DateTime.Now)
             {
                 _logger.LogWarning("Refresh token expired for user ID: {UserId}", user.Id);
                 throw new Exception("Refresh token expired");
@@ -249,23 +249,19 @@ public class UserService:IUserService
 
             // Remove the refresh token
             user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = null;
+            user.RefreshTokenExpiry = null;
 
             // Update user information in database
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to update user");
-                return new RevokeRefreshTokenResponse
-                {
-                    Message = "Failed to revoke refresh token"
-                };
+                return "Failed to revoke refresh token";
+
             }
             _logger.LogInformation("Refresh token revoked successfully");
-            return new RevokeRefreshTokenResponse
-            {
-                Message = "Refresh token revoked successfully"
-            };
+            return
+                 "Refresh token revoked successfully";
         }
         catch (Exception ex)
         {
@@ -281,7 +277,7 @@ public class UserService:IUserService
     /// <param name="request">The update user request.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the user response.</returns>
     /// <exception cref="Exception">Thrown when the user is not found.</exception>
-    public async Task<UserResponse> UpdateAsync(Guid id, UpdateUserRequest request)
+    public async Task<UserResponseDto> UpdateAsync(Guid id, UpdateUserRequestDto request)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
@@ -289,15 +285,12 @@ public class UserService:IUserService
             _logger.LogError("User not found");
             throw new Exception("User not found");
         }
-
-        user.UpdateAt = DateTime.Now;
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
+        user.FullName = request.FullName;
         user.Email = request.Email;
         user.Gender = request.Gender;
 
         await _userManager.UpdateAsync(user);
-        return _mapper.Map<UserResponse>(user);
+        return _mapper.Map<UserResponseDto>(user);
     }
 
     /// <summary>
@@ -315,5 +308,10 @@ public class UserService:IUserService
             throw new Exception("User not found");
         }
         await _userManager.DeleteAsync(user);
+    }
+
+    public Task<string> RevokeRefreshToken(RefreshTokenRequestDto refreshTokenRemoveRequest)
+    {
+        throw new NotImplementedException();
     }
 }
